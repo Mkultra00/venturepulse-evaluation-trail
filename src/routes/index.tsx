@@ -103,6 +103,11 @@ function Index() {
       </section>
 
       <section className="panel p-4">
+        <h2 className="font-semibold mb-2">Applicant process — <span className="text-primary">{STARTUP.name}</span></h2>
+        <iframe src="/flow.html" title={`${STARTUP.name} applicant process flowchart`} className="h-[760px] w-full rounded border border-border bg-background" />
+      </section>
+
+      <section className="panel p-4">
         <h2 className="font-semibold mb-3">Evaluation timeline <span className="text-xs text-muted-foreground font-normal">— pick a point in time; KPIs and scores update</span></h2>
         <div className="flex gap-2 overflow-x-auto">
           {snaps.map((s, i) => {
