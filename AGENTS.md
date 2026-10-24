@@ -22,3 +22,11 @@ Tracing is currently wired at: src/lib/prism.server.ts (emitTrace helper), src/l
 retriever, or any entry point that calls a model, wire it to PRISM before you
 finish. Unwired code is invisible in the dashboard. If you are unsure whether
 something is covered, assume it is not and wire it.
+
+## Roundtable activity log
+
+Assessment runs are also logged to Roundtable as `kind=task` records (one per
+run, with model, latency, tokens, gateway run_id and PRISM session_id) so
+Dilly's activity shows next to PRISM traces. MCP tools are builder-side only —
+the app cannot call Roundtable at runtime — so runs are logged by the agent
+after they happen (enumerated from AI Gateway logs), not by app code.
