@@ -76,6 +76,14 @@ function Index() {
   const log = useMemo(() => script.slice(0, Math.max(0, step + 1)), [step, script]);
   const series = (idx: number) => snaps.map((s) => s.kpis[idx]?.num ?? null);
 
+  // Highlight the applicant's current position on the flowchart
+  useEffect(() => {
+    const post = () => flow.current?.contentWindow?.postMessage({ flow: { node: stage, via: running ? "live run" : snap.label } }, "*");
+    post();
+    const t = setTimeout(post, 1200); // retry once the iframe has loaded
+    return () => clearTimeout(t);
+  }, [stage, running, snap.label]);
+
   return (
     <main className="min-h-screen px-4 py-6 md:px-8 max-w-7xl mx-auto space-y-5">
       <header className="flex flex-wrap items-end justify-between gap-4">
