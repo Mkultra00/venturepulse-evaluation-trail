@@ -242,7 +242,7 @@ export const APPLICANTS: Applicant[] = [
         scores: scores({ team: 6, market: 6, product: 6, traction: 5, unit: 6, defense: 5, terms: 7 }),
         v: 0, fundFit: 90,
         kpis: [k("ARR (deck)", "~$0.30M", 0.3), k("Customers", "a few dozen", null), k("Open roles (2025)", "0", 0), k("Commit velocity (2025)", "−42%", -42), k("Price/seat", "$400", 400), k("Gross margin", "~70%", 70)],
-        flags: [], note: "Quiet founder; deck undersells. 2025 snapshots pre-date incorporation.",
+        flags: [], vc: ["Founder is quiet — 'around three hundred K, I'd have to check.' Pull the data room before judging.", "Tracks bids won, not ARR. Domain-deep, not metrics-deep."], note: "Quiet founder; deck undersells. 2025 snapshots pre-date incorporation.",
       },
       {
         id: "m3", label: "Meeting 3 · verified", date: "2026-10-21T00:00:00Z", stageReached: "decide",
@@ -250,6 +250,7 @@ export const APPLICANTS: Applicant[] = [
         v: vadj(100), fundFit: 90,
         kpis: [k("ARR (data room)", "$0.41M", 0.41), k("Paying accounts", "46", 46), k("Largest account", "7%", 7), k("Commit velocity", "+89%", 89), k("Price/seat", "$650", 650), k("Gross margin", "74%", 74)],
         flags: [],
+        vc: ["Data room shows $34.2k MRR — well above the deck. Raised prices in September and nobody churned.", "'The value is the estimating rules Maya wrote down over ten years' — that's the moat answer we wanted."],
         note: "Take to partner meeting. Founder undersells; the data is better than the deck. Verified polygon sits outside claimed.",
       },
     ],
@@ -279,7 +280,7 @@ export const APPLICANTS: Applicant[] = [
         scores: scores({ team: 8, market: 7, product: 8, traction: 7, unit: 7, defense: 7, terms: 7 }),
         v: 0, fundFit: 88,
         kpis: [k("ARR", "$0.79M", 0.79), k("Customers", "5", 5), k("Warehouses", "14", 14), k("Gross margin", "70%", 70), k("Largest customer", "24%", 24), k("Commit velocity", "—", null)],
-        flags: [], note: "Good metrics on paper. Legal diligence not yet run.",
+        flags: [], vc: ["Metrics look real; start legal diligence early.", "Asked about CTO's history with Reverso."], note: "Good metrics on paper. Legal diligence not yet run.",
       },
       {
         id: "m3", label: "Meeting 3 · verified", date: "2026-10-21T00:00:00Z", stageReached: "decide",
@@ -287,6 +288,7 @@ export const APPLICANTS: Applicant[] = [
         v: vadj(0), fundFit: 88,
         kpis: [k("ARR", "$0.79M", 0.79), k("Customers", "5", 5), k("Warehouses", "14", 14), k("Gross margin", "70%", 70), k("Commit velocity", "−4%", -4), k("Open roles", "2", 2)],
         flags: flags(["RF_IP_NOT_ASSIGNED", "RF_FOUNDER_NOT_FULLTIME", "RF_SINGLE_MODEL_PROVIDER"]),
+        vc: ["Hold until the IP assignment is signed and counsel reviews the Reverso clause.", "Metrics are real — this is a legal problem, not a business problem."],
         note: "Do not proceed until the CTO's IP assignment is signed and Reverso's invention-assignment clause is reviewed by counsel. Metrics are real.",
       },
     ],
