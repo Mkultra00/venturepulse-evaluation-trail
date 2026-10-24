@@ -10,7 +10,7 @@ const EDGES: [AgentId, AgentId][] = [
 const pos = (id: AgentId) => AGENTS.find((a) => a.id === id)!;
 
 export function AgentGraph({ step }: { step: number }) {
-  const cur = step >= 0 ? RUN_SCRIPT[step] : null;
+  const cur = step >= 0 ? RUN_SCRIPT[step]! : null;
   const done = new Set<AgentId>();
   RUN_SCRIPT.slice(0, Math.max(0, step)).forEach((s) => { done.add(s.from); if (s.to) done.add(s.to); });
   const toolActive = cur && !cur.to;

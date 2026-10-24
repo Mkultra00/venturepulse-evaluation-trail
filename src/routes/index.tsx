@@ -22,9 +22,9 @@ export const Route = createFileRoute("/")({
 });
 
 const LIVE: Snapshot = {
-  ...SNAPSHOTS[2], id: "live", label: "Live re-eval", date: "", 
-  scores: { ...SNAPSHOTS[2].scores, defense: 4, unit: 3 },
-  kpis: { ...SNAPSHOTS[2].kpis, arr: 1.62, nrr: 121, burnMultiple: 1.4, grossMargin: 69, week8: 76 },
+  ...SNAPSHOTS[2]!, id: "live", label: "Live re-eval", date: "", 
+  scores: { ...SNAPSHOTS[2]!.scores, defense: 4, unit: 3 },
+  kpis: { ...SNAPSHOTS[2]!.kpis, arr: 1.62, nrr: 121, burnMultiple: 1.4, grossMargin: 69, week8: 76 },
   fundFit: 82, v: -3, note: "Live run complete · PRISM passed.",
 };
 
@@ -51,11 +51,11 @@ function Index() {
     return () => clearTimeout(t);
   }, [step, running]);
 
-  const snap = snaps[sel];
+  const snap = snaps[sel]!;
   const score = merit(snap.scores, snap.v);
   const ev = evidencedCount(snap.scores);
-  const last = snaps[snaps.length - 1];
-  const stage = running ? RUN_SCRIPT[step].stage : snap.stageReached;
+  const last = snaps[snaps.length - 1]!;
+  const stage = running ? RUN_SCRIPT[step]!.stage : snap.stageReached;
   const log = useMemo(() => RUN_SCRIPT.slice(0, Math.max(0, step + 1)), [step]);
   const series = (f: (s: Snapshot) => number | null) => snaps.map(f);
 
