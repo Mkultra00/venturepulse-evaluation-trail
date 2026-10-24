@@ -56,23 +56,23 @@ function Index() {
   useEffect(() => {
     if (!running) return;
     const t = setTimeout(() => {
-      if (step === RUN_SCRIPT.length - 1) {
-        const live = { ...LIVE, date: new Date().toISOString() };
+      if (step === script.length - 1) {
+        const live: Snapshot = { ...app.snapshots[app.snapshots.length - 1]!, id: "live", label: "Live re-eval", date: new Date().toISOString(), note: app.liveNote };
         setSnaps((s) => [...s.filter((x) => x.id !== "live"), live]);
         setSel(app.snapshots.length);
         setNow(new Date());
-        setStep(RUN_SCRIPT.length);
+        setStep(script.length);
       } else setStep(step + 1);
     }, 1100);
     return () => clearTimeout(t);
-  }, [step, running]);
+  }, [step, running, script, app]);
 
   const snap = snaps[sel]!;
   const score = merit(snap.scores, snap.v);
   const ev = evidencedCount(snap.scores);
   const last = snaps[snaps.length - 1]!;
-  const stage = running ? RUN_SCRIPT[step]!.stage : snap.stageReached;
-  const log = useMemo(() => RUN_SCRIPT.slice(0, Math.max(0, step + 1)), [step]);
+  const stage = running ? script[step]!.stage : snap.stageReached;
+  const log = useMemo(() => script.slice(0, Math.max(0, step + 1)), [step, script]);
   const series = (idx: number) => snaps.map((s) => s.kpis[idx]?.num ?? null);
 
   return (
