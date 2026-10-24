@@ -4,7 +4,6 @@ import { AgentGraph } from "@/components/doughdilly/AgentGraph";
 import { Workflow } from "@/components/doughdilly/Workflow";
 import { Spark } from "@/components/doughdilly/Spark";
 import { ProgressUpdate } from "@/components/doughdilly/ProgressUpdate";
-import { RUN_SCRIPT } from "@/lib/demo-data";
 import { APPLICANTS, type Snapshot } from "@/lib/applicants";
 import { DIMENSIONS, evidencedCount, grade, merit, sinceLabel, ABSTAIN_MIN } from "@/lib/scoring";
 import { cn } from "@/lib/utils";
@@ -25,18 +24,6 @@ export const Route = createFileRoute("/")({
 });
 
 const DD = APPLICANTS[0]!;
-const LIVE: Snapshot = {
-  ...DD.snapshots[2]!, id: "live", label: "Live re-eval", date: "",
-  scores: { ...DD.snapshots[2]!.scores, defense: 4, unit: 3 },
-  kpis: DD.snapshots[2]!.kpis.map((k) =>
-    k.label === "ARR" ? { ...k, val: "$1.62M", num: 1.62 }
-    : k.label === "NRR" ? { ...k, val: "121%", num: 121 }
-    : k.label === "Burn multiple" ? { ...k, val: "1.4x", num: 1.4 }
-    : k.label === "Gross margin" ? { ...k, val: "69%", num: 69 }
-    : k.label === "Week-8 retention" ? { ...k, val: "76%", num: 76 }
-    : k),
-  fundFit: 82, v: -3, note: "Live run complete · PRISM passed.",
-};
 
 function Index() {
   const [appId, setAppId] = useState(DD.id);
