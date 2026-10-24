@@ -32,7 +32,8 @@ function Index() {
   const [sel, setSel] = useState(DD.snapshots.length - 1);
   const [step, setStep] = useState(-1);
   const [now, setNow] = useState<Date | null>(null);
-  const running = step >= 0 && step < RUN_SCRIPT.length;
+  const script = app.script;
+  const running = step >= 0 && step < script.length;
   const hvs = useRef<HTMLIFrameElement>(null);
   const [view, setView] = useState<"map" | "holo">("map");
 
@@ -45,10 +46,10 @@ function Index() {
   };
   useEffect(() => {
     if (!running) return;
-    const e = RUN_SCRIPT[step]!;
+    const e = script[step]!;
     const to = e.to ?? e.tool ?? "DILLY";
     hvs.current?.contentWindow?.postMessage({ hvs: { type: "msg", from: e.from, to, kind: e.kind, note: e.note, busy: 1 } }, "*");
-  }, [step, running]);
+  }, [step, running, script]);
 
   useEffect(() => { setNow(new Date()); const t = setInterval(() => setNow(new Date()), 15000); return () => clearInterval(t); }, []);
 
