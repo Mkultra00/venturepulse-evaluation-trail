@@ -69,13 +69,16 @@ export async function assessUpdate(apiKey: string, baseRaw: string, startup: str
   try {
     const text = await result.text;
     const assessment = parseAssessment(text);
+    const latencyMs = Math.round(performance.now() - started);
     const { emitTrace } = await import("./prism.server");
     await emitTrace(prompt, JSON.stringify(assessment), {
       model: NINOO_MODEL,
-      latencyMs: Math.round(performance.now() - started),
+      latencyMs,
       sessionId,
       agentId: "progress-assessor",
     });
+    const { emitAssessmentRecord } = await import("./roundtable.server");
+    await emitAssessmentRecord({ startup, sessionId, model: NINOO_MODEL, latencyMs, assessment });
     return { ok: true as const, assessment };
   } catch (e) {
     if (e instanceof z.ZodError || (e instanceof Error && e.message.includes("JSON"))) {
