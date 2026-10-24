@@ -51,7 +51,7 @@ export const RUN_SCRIPT: Step[] = [
   { stage: "verify", from: "SCOUT", to: "VERIFIER", kind: "cmd", note: "Cross-check claims vs signals" },
   { stage: "verify", from: "VERIFIER", to: null, kind: "err", note: "Red flag: deck says 14 FTE, careers page implies 9" },
   { stage: "verify", from: "METRICS", to: "RUBRIC", kind: "cmd", note: "Score 19 rubric criteria" },
-  { stage: "gate", from: "RUBRIC", to: "SCORER", kind: "ok", note: "Gate passed · 9 of 10 dims evidenced" },
+  { stage: "gate", from: "RUBRIC", to: "SCORER", kind: "ok", note: "Gate passed · 10 of 10 dims evidenced" },
   { stage: "score", from: "VERIFIER", to: "SCORER", kind: "cmd", note: "Merit computed in code · V = −3" },
   { stage: "audit", from: "SCORER", to: "AUDITOR", kind: "cmd", note: "Send run to PRISM" },
   { stage: "audit", from: "AUDITOR", to: null, kind: "ok", note: "PRISM: bias ✓ consistency ✓ explainability ✓" },
