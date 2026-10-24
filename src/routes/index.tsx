@@ -274,6 +274,13 @@ const STEPS: [string, string][] = [
   ["See where they are in the process", "The Applicant process chart at the bottom highlights the applicant's current step and follows a live run."],
 ];
 
+const SPONSORS: [string, string, string][] = [
+  ["Akta", "Where the sample companies came from", "The 7 sample applicants are fictional, but built from real company-enrichment records pulled from Akta: headcount, revenue and valuation estimates, management, digital presence, and strategic and trust signals. Five real companies mirror five applicants — Vic.ai→Ledgerline, Pallet→Haulmark, Togal.AI→Cinderwell, Sixfold AI→Quillstack, Rillet→Vantor. Their records are wired in as competitor evidence on the market and defensibility scores, and every signal cites its source URL. One catch is real: Vic.ai's record says \"previously bootstrapped without venture capital\" next to a $52M Series C, and the verifier flags it. Akta was used to build the datasets, not called live by the app."],
+  ["Neecroi", "The model that reads founder updates", "\"Assess update\" runs on Neecroi: Claude Sonnet 5.5 gets the latest KPIs plus the founder's update and answers with KPI arrows, red flags, follow-up questions and a draft partner note. It runs on the server with a key kept in settings, so the key never ships to the browser."],
+  ["PRISM", "Proof of what the AI actually did", "Every assessment is traced to PRISM the moment it finishes — prompt, answer, model, latency — and traces for the same startup group into one trajectory. The PRISM traces tab reads them back from PRISM's own API and groups them by startup. The audit step inside the demo workflow and the PRISM badge in the header are still illustrative labels; the real tracing runs on the assessment feature."],
+  ["Roundtable", "A live activity log", "DoughDilly has its own identity on Roundtable (\"doughdilly-app\") and posts one task record as each assessment runs, carrying confidence, KPI arrows, red flags, model, latency and the matching PRISM session — so Dilly's activity sits next to the traces instead of being reconstructed afterwards."],
+];
+
 function HowTo() {
   return (
     <section className="panel p-6 space-y-5">
@@ -291,6 +298,19 @@ function HowTo() {
           </li>
         ))}
       </ol>
+      <div>
+        <h3 className="font-semibold">How the four sponsors were used</h3>
+        <p className="text-sm text-muted-foreground mb-3">Akta, Neecroi, PRISM and Roundtable each did a different job in this build.</p>
+        <div className="grid md:grid-cols-2 gap-3">
+          {SPONSORS.map(([name, role, d]) => (
+            <li key={name} className="rounded-md bg-muted p-4 list-none">
+              <div className="font-mono text-xs text-primary">{name.toUpperCase()}</div>
+              <div className="font-semibold">{role}</div>
+              <p className="text-sm text-muted-foreground mt-1">{d}</p>
+            </li>
+          ))}
+        </div>
+      </div>
       <p className="text-xs text-muted-foreground">All companies and numbers here are made up for the demo.</p>
     </section>
   );
