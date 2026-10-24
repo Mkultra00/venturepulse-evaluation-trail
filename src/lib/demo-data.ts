@@ -1,5 +1,3 @@
-import type { DimScores } from "./scoring";
-
 export type StageId =
   | "intake" | "gather" | "verify" | "gate" | "score" | "audit" | "decide";
 
@@ -59,49 +57,3 @@ export const RUN_SCRIPT: Step[] = [
   { stage: "decide", from: "AUDITOR", to: "DILLY", kind: "ok", note: "Scorecard ready for partner" },
 ];
 
-export type Snapshot = {
-  id: string;
-  label: string;
-  date: string;
-  stageReached: StageId;
-  scores: DimScores;
-  v: number;
-  fundFit: number;
-  kpis: { arr: number; nrr: number; burnMultiple: number; grossMargin: number; week8: number; fte: number };
-  flags: string[];
-  note: string;
-};
-
-export const STARTUP = {
-  name: "DoughDilly",
-  tagline: "AI close-the-books agent for mid-market finance teams",
-  stage: "Seed",
-  founders: ["Priya Raman · CEO, ex-Stripe finance eng", "Diego Alvarez · CTO, ex-Ramp ML"],
-  referrer: "Northwind Angels (hit rate 31%)",
-};
-
-const days = (n: number) => new Date(Date.now() - n * 86400000).toISOString();
-
-export const SNAPSHOTS: Snapshot[] = [
-  {
-    id: "s1", label: "Meeting 1", date: days(118), stageReached: "gate",
-    scores: { team: 4, fmf: 4, market: 3, product: 2, traction: null, retention: null, unit: null, defense: null, learning: null, terms: 3 },
-    v: 0, fundFit: 58,
-    kpis: { arr: 0.12, nrr: 0, burnMultiple: 0, grossMargin: 52, week8: 0, fte: 5 },
-    flags: [], note: "Abstained: only 5 of 10 dimensions evidenced.",
-  },
-  {
-    id: "s2", label: "Meeting 2", date: days(64), stageReached: "decide",
-    scores: { team: 4, fmf: 4, market: 3, product: 3, traction: 3, retention: 3, unit: 2, defense: null, learning: 3, terms: 3 },
-    v: -2, fundFit: 66,
-    kpis: { arr: 0.48, nrr: 104, burnMultiple: 3.1, grossMargin: 58, week8: 61, fte: 8 },
-    flags: ["Churn figure differs between deck and transcript"], note: "Decision: Monitor.",
-  },
-  {
-    id: "s3", label: "Meeting 3", date: days(19), stageReached: "decide",
-    scores: { team: 5, fmf: 4, market: 4, product: 4, traction: 4, retention: 4, unit: 3, defense: 3, learning: 5, terms: 3 },
-    v: -3, fundFit: 79,
-    kpis: { arr: 1.35, nrr: 118, burnMultiple: 1.6, grossMargin: 67, week8: 74, fte: 11 },
-    flags: ["Deck says 14 FTE, careers page implies ~9"], note: "Decision pending · strong learning rate.",
-  },
-];
