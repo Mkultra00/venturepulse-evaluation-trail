@@ -1,5 +1,5 @@
 import type { DimScores } from "./scoring";
-import type { StageId } from "./demo-data";
+import { RUN_SCRIPT, type StageId, type Step } from "./demo-data";
 
 export type Kpi = { label: string; val: string; num: number | null };
 
@@ -23,10 +23,55 @@ export type Applicant = {
   stage: string;
   founders: string[];
   referrer: string;
-  /** true = synthetic demo applicant that supports the scripted live run */
+  /** true = synthetic demo applicant */
   live: boolean;
   snapshots: Snapshot[];
+  /** agent run replayed when the user presses "Run live evaluation" */
+  script: Step[];
+  /** note attached to the appended "Live re-eval" snapshot */
+  liveNote: string;
 };
+
+/** Build a tailored agent run for a dataset applicant. */
+function mkScript(o: {
+  claims: number;
+  scout: string;
+  founder: string;
+  metrics: string;
+  memory: string;
+  verifyFlags: string[];
+  gatePass: boolean;
+  dims: number;
+  v: number;
+  decide: string;
+}): Step[] {
+  const steps: Step[] = [
+    { stage: "intake", from: "DILLY", to: "INTAKE", kind: "cmd", note: "Plan run · dispatch INTAKE" },
+    { stage: "intake", from: "INTAKE", to: null, tool: "PDF", kind: "tool", note: `PDF parser → ${o.claims} claims extracted` },
+    { stage: "gather", from: "INTAKE", to: "SCOUT", kind: "cmd", note: "Fan-out: SCOUT, FOUNDER, METRICS, MEMORY" },
+    { stage: "gather", from: "SCOUT", to: null, tool: "GITHUB", kind: "tool", note: o.scout },
+    { stage: "gather", from: "INTAKE", to: "FOUNDER", kind: "cmd", note: "Spawn 2 founder subagents" },
+    { stage: "gather", from: "FOUNDER", to: null, tool: "LINKEDIN", kind: "tool", note: o.founder },
+    { stage: "gather", from: "INTAKE", to: "METRICS", kind: "cmd", note: "Normalize ARR, NRR, burn multiple" },
+    { stage: "gather", from: "METRICS", to: null, tool: "BENCH", kind: "tool", note: o.metrics },
+    { stage: "gather", from: "INTAKE", to: "MEMORY", kind: "mem", note: o.memory },
+    { stage: "verify", from: "SCOUT", to: "VERIFIER", kind: "cmd", note: "Cross-check claims vs signals" },
+    ...o.verifyFlags.map((f): Step => ({ stage: "verify", from: "VERIFIER", to: null, tool: "LLM", kind: "err", note: `Red flag: ${f}` })),
+    { stage: "verify", from: "METRICS", to: "RUBRIC", kind: "cmd", note: "Score 19 rubric criteria" },
+    o.gatePass
+      ? { stage: "gate", from: "RUBRIC", to: "SCORER", kind: "ok", note: `Gate passed · ${o.dims} of 10 dims evidenced` }
+      : { stage: "gate", from: "RUBRIC", to: "DILLY", kind: "err", note: `Abstain · only ${o.dims} of 10 dims evidenced` },
+  ];
+  if (o.gatePass) {
+    steps.push(
+      { stage: "score", from: "VERIFIER", to: "SCORER", kind: "cmd", note: `Merit computed in code · V = ${o.v}` },
+      { stage: "audit", from: "SCORER", to: "AUDITOR", kind: "cmd", note: "Send run to PRISM" },
+      { stage: "audit", from: "AUDITOR", to: null, tool: "PRISM", kind: "ok", note: "PRISM: bias ✓ consistency ✓ explainability ✓" },
+    );
+  }
+  steps.push({ stage: "decide", from: o.gatePass ? "AUDITOR" : "DILLY", to: "DILLY", kind: "ok", note: o.decide });
+  return steps;
+}
 
 const days = (n: number) => new Date(Date.now() - n * 86400000).toISOString();
 /** dataset scores are 0–10; the report card uses 0–5 */
@@ -68,6 +113,8 @@ export const APPLICANTS: Applicant[] = [
     founders: ["Priya Raman · CEO, ex-Stripe finance eng", "Diego Alvarez · CTO, ex-Ramp ML"],
     referrer: "Northwind Angels (hit rate 31%)",
     live: true,
+    script: RUN_SCRIPT,
+    liveNote: "Live run complete · PRISM passed.",
     snapshots: [
       {
         id: "s1", label: "Meeting 1", date: days(118), stageReached: "gate",
@@ -100,6 +147,17 @@ export const APPLICANTS: Applicant[] = [
     founders: ["Nadia Farouk · CEO", "Daniel Okafor · CTO"],
     referrer: "Halyard Ventures pipeline",
     live: false,
+    script: mkScript({
+      claims: 41,
+      scout: "GitHub API · commits 212 → 41 QoQ (−81%), 2 contributors inactive",
+      founder: "Speaker page: 'Senior Manager, AP Product' — not Head of AP",
+      metrics: "Durable ARR $1.2M · $0.9M is paid pilots · top customer ~33%",
+      memory: "Fund memory: no prior contact",
+      verifyFlags: ["ARR includes pilots", "velocity −81%", "roles 11 → 2", "title inflation", "3-months-free banner", "margin excludes model costs"],
+      gatePass: true, dims: 7, v: -3,
+      decide: "Scorecard ready · recommend re-underwrite at lower valuation",
+    }),
+    liveNote: "Live run complete · 6 of 8 deck claims contradicted · PRISM passed.",
     snapshots: [
       {
         id: "m1", label: "Meeting 1 · deck claims", date: "2026-09-29T00:00:00Z", stageReached: "intake",
@@ -126,6 +184,17 @@ export const APPLICANTS: Applicant[] = [
     founders: ["Tomas Herrera · CEO", "Aisha Bello · CTO"],
     referrer: "Halyard Ventures pipeline",
     live: false,
+    script: mkScript({
+      claims: 36,
+      scout: "GitHub API · commits +53% QoQ, 4 contributors",
+      founder: "Bios check out against public record",
+      metrics: "ARR $655k verified, above deck · NRR 116–121% across cohorts",
+      memory: "Fund memory: 1 prior pass (too early)",
+      verifyFlags: ["quoted margin excludes GPU cost"],
+      gatePass: true, dims: 7, v: 5,
+      decide: "Scorecard ready · recommend partner meeting this week",
+    }),
+    liveNote: "Live run complete · claims hold · PRISM passed.",
     snapshots: [
       {
         id: "m1", label: "Meeting 1 · deck claims", date: "2026-10-01T00:00:00Z", stageReached: "intake",
@@ -152,6 +221,17 @@ export const APPLICANTS: Applicant[] = [
     founders: ["Maya Chen-Ortiz · CEO", "Ben Adeyemi · CTO"],
     referrer: "Halyard Ventures pipeline",
     live: false,
+    script: mkScript({
+      claims: 22,
+      scout: "GitHub API · commits +89% QoQ · 2025 snapshot stale (pre-incorporation)",
+      founder: "OSS takeoff tool, 1.1k stars · 2024 innovation award",
+      metrics: "Data room: $34.2k MRR = $410k ARR, above deck · largest account 7%",
+      memory: "Fund memory: no prior contact",
+      verifyFlags: [],
+      gatePass: true, dims: 7, v: 5,
+      decide: "Scorecard ready · founder undersells; data beats the deck",
+    }),
+    liveNote: "Live run complete · verified polygon outside claimed · PRISM passed.",
     snapshots: [
       {
         id: "m1", label: "Meeting 1 · deck claims", date: "2026-10-02T00:00:00Z", stageReached: "intake",
@@ -178,6 +258,17 @@ export const APPLICANTS: Applicant[] = [
     founders: ["Grace Whitfield · CEO", "Sam Whitaker · CTO"],
     referrer: "Halyard Ventures pipeline",
     live: false,
+    script: mkScript({
+      claims: 28,
+      scout: "GitHub API · velocity −4%, steady · single external model provider",
+      founder: "CTO still part-time at Reverso (competitor)",
+      metrics: "ARR $790k verified · 5 customers / 14 warehouses · GM 70% incl. API",
+      memory: "Fund memory: no prior contact",
+      verifyFlags: ["core IP not assigned to company", "CTO not full time", "single model provider"],
+      gatePass: true, dims: 7, v: 0,
+      decide: "Scorecard ready · hold until IP assignment signed",
+    }),
+    liveNote: "Live run complete · metrics real, legal risk confirmed · PRISM passed.",
     snapshots: [
       {
         id: "m1", label: "Meeting 1 · deck claims", date: "2026-10-05T00:00:00Z", stageReached: "intake",
@@ -204,6 +295,17 @@ export const APPLICANTS: Applicant[] = [
     founders: ["Ryan Castellano · CEO", "Undisclosed · CTO"],
     referrer: "Halyard Ventures pipeline",
     live: false,
+    script: mkScript({
+      claims: 14,
+      scout: "GitHub API · no public repos found",
+      founder: "CTO undisclosed · CEO second job unconfirmed",
+      metrics: "No revenue data · site is waitlist only",
+      memory: "Fund memory: no prior contact",
+      verifyFlags: ["traction claims unverifiable", "founder possibly not full time"],
+      gatePass: false, dims: 3, v: 0,
+      decide: "Abstained · 4 diligence items requested before meeting 2",
+    }),
+    liveNote: "Live run complete · abstained, not enough verifiable evidence.",
     snapshots: [
       {
         id: "m1", label: "Meeting 1 · only data", date: "2026-10-17T00:00:00Z", stageReached: "gate",
@@ -223,6 +325,17 @@ export const APPLICANTS: Applicant[] = [
     founders: ["Dr. Lena Vogt · CEO", "Dr. Kenji Mori · CSO"],
     referrer: "Halyard Ventures pipeline",
     live: false,
+    script: mkScript({
+      claims: 19,
+      scout: "GitHub API · commits +9% QoQ · 2.3k stars · in-house model",
+      founder: "Two PhD founders, publications check out",
+      metrics: "Pre-revenue · wet-lab cost structure",
+      memory: "Fund memory: thesis check → biotech out of scope",
+      verifyFlags: [],
+      gatePass: true, dims: 7, v: 4,
+      decide: "Scorecard ready · strong merit, fit 18 — pass on thesis, refer out",
+    }),
+    liveNote: "Live run complete · merit strong, off thesis · PRISM passed.",
     snapshots: [
       {
         id: "m1", label: "Meeting 1 · verified", date: "2026-10-06T00:00:00Z", stageReached: "decide",
@@ -242,6 +355,17 @@ export const APPLICANTS: Applicant[] = [
     founders: ["Jordan Pike · CEO", "Elena Sokolova · CTO"],
     referrer: "Halyard Ventures pipeline",
     live: false,
+    script: mkScript({
+      claims: 33,
+      scout: "GitHub API · commits +8% QoQ · two model providers (router)",
+      founder: "CEO press overstated · CTO record is the real signal",
+      metrics: "ARR $930k verified (7% under deck, within tolerance) · largest customer 6%",
+      memory: "Fund memory: no prior contact",
+      verifyFlags: ["post-money 32x durable ARR"],
+      gatePass: true, dims: 7, v: 2,
+      decide: "Scorecard ready · solid business, priced high",
+    }),
+    liveNote: "Live run complete · valuation flag confirmed · PRISM passed.",
     snapshots: [
       {
         id: "m1", label: "Meeting 1 · deck claims", date: "2026-10-03T00:00:00Z", stageReached: "intake",

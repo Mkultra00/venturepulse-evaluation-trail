@@ -4,7 +4,6 @@ import { AgentGraph } from "@/components/doughdilly/AgentGraph";
 import { Workflow } from "@/components/doughdilly/Workflow";
 import { Spark } from "@/components/doughdilly/Spark";
 import { ProgressUpdate } from "@/components/doughdilly/ProgressUpdate";
-import { RUN_SCRIPT } from "@/lib/demo-data";
 import { APPLICANTS, type Snapshot } from "@/lib/applicants";
 import { DIMENSIONS, evidencedCount, grade, merit, sinceLabel, ABSTAIN_MIN } from "@/lib/scoring";
 import { cn } from "@/lib/utils";
@@ -25,18 +24,6 @@ export const Route = createFileRoute("/")({
 });
 
 const DD = APPLICANTS[0]!;
-const LIVE: Snapshot = {
-  ...DD.snapshots[2]!, id: "live", label: "Live re-eval", date: "",
-  scores: { ...DD.snapshots[2]!.scores, defense: 4, unit: 3 },
-  kpis: DD.snapshots[2]!.kpis.map((k) =>
-    k.label === "ARR" ? { ...k, val: "$1.62M", num: 1.62 }
-    : k.label === "NRR" ? { ...k, val: "121%", num: 121 }
-    : k.label === "Burn multiple" ? { ...k, val: "1.4x", num: 1.4 }
-    : k.label === "Gross margin" ? { ...k, val: "69%", num: 69 }
-    : k.label === "Week-8 retention" ? { ...k, val: "76%", num: 76 }
-    : k),
-  fundFit: 82, v: -3, note: "Live run complete · PRISM passed.",
-};
 
 function Index() {
   const [appId, setAppId] = useState(DD.id);
@@ -45,7 +32,8 @@ function Index() {
   const [sel, setSel] = useState(DD.snapshots.length - 1);
   const [step, setStep] = useState(-1);
   const [now, setNow] = useState<Date | null>(null);
-  const running = step >= 0 && step < RUN_SCRIPT.length;
+  const script = app.script;
+  const running = step >= 0 && step < script.length;
   const hvs = useRef<HTMLIFrameElement>(null);
   const [view, setView] = useState<"map" | "holo">("map");
 
@@ -58,33 +46,33 @@ function Index() {
   };
   useEffect(() => {
     if (!running) return;
-    const e = RUN_SCRIPT[step]!;
+    const e = script[step]!;
     const to = e.to ?? e.tool ?? "DILLY";
     hvs.current?.contentWindow?.postMessage({ hvs: { type: "msg", from: e.from, to, kind: e.kind, note: e.note, busy: 1 } }, "*");
-  }, [step, running]);
+  }, [step, running, script]);
 
   useEffect(() => { setNow(new Date()); const t = setInterval(() => setNow(new Date()), 15000); return () => clearInterval(t); }, []);
 
   useEffect(() => {
     if (!running) return;
     const t = setTimeout(() => {
-      if (step === RUN_SCRIPT.length - 1) {
-        const live = { ...LIVE, date: new Date().toISOString() };
+      if (step === script.length - 1) {
+        const live: Snapshot = { ...app.snapshots[app.snapshots.length - 1]!, id: "live", label: "Live re-eval", date: new Date().toISOString(), note: app.liveNote };
         setSnaps((s) => [...s.filter((x) => x.id !== "live"), live]);
         setSel(app.snapshots.length);
         setNow(new Date());
-        setStep(RUN_SCRIPT.length);
+        setStep(script.length);
       } else setStep(step + 1);
     }, 1100);
     return () => clearTimeout(t);
-  }, [step, running]);
+  }, [step, running, script, app]);
 
   const snap = snaps[sel]!;
   const score = merit(snap.scores, snap.v);
   const ev = evidencedCount(snap.scores);
   const last = snaps[snaps.length - 1]!;
-  const stage = running ? RUN_SCRIPT[step]!.stage : snap.stageReached;
-  const log = useMemo(() => RUN_SCRIPT.slice(0, Math.max(0, step + 1)), [step]);
+  const stage = running ? script[step]!.stage : snap.stageReached;
+  const log = useMemo(() => script.slice(0, Math.max(0, step + 1)), [step, script]);
   const series = (idx: number) => snaps.map((s) => s.kpis[idx]?.num ?? null);
 
   return (
@@ -111,10 +99,9 @@ function Index() {
             <div className="text-[10px] uppercase text-muted-foreground font-mono">Last evaluated</div>
             <div className="font-mono text-lg text-accent">{now && last.date ? sinceLabel(last.date, now) : "—"}</div>
           </div>
-          <button onClick={() => setStep(0)} disabled={running || !now || !app.live}
-            title={app.live ? undefined : "Live run is scripted for the DoughDilly demo applicant"}
+          <button onClick={() => setStep(0)} disabled={running || !now}
             className="rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground shadow-glow disabled:opacity-60">
-            {!now ? "Loading…" : running ? "Agents running…" : app.live ? "▶ Run live evaluation" : "▶ Live run (demo applicant only)"}
+            {!now ? "Loading…" : running ? "Agents running…" : "▶ Run live evaluation"}
           </button>
         </div>
       </header>
@@ -209,7 +196,7 @@ function Index() {
             kpis={snap.kpis.map((kpi) => `${kpi.label}: ${kpi.val}`).join(", ")} />
           <section className="panel p-4">
             <div className="flex justify-between mb-2"><h2 className="font-semibold">Agent flow & tool use</h2>
-              <span className="font-mono text-xs text-muted-foreground">{running ? `step ${step + 1}/${RUN_SCRIPT.length}` : step >= RUN_SCRIPT.length ? "complete" : "idle — press Run"}</span></div>
+              <span className="font-mono text-xs text-muted-foreground">{running ? `step ${step + 1}/${script.length}` : step >= script.length ? "complete" : "idle — press Run"}</span></div>
             <div role="tablist" className="mb-2 flex gap-1">
               {(["map", "holo"] as const).map((t) => (
                 <button key={t} role="tab" aria-selected={view === t} onClick={() => setView(t)}
