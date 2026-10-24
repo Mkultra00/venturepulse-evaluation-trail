@@ -13,6 +13,8 @@ export type Snapshot = {
   fundFit: number;
   kpis: Kpi[];
   flags: string[];
+  /** partner/associate comments recorded at this meeting */
+  vc: string[];
   note: string;
 };
 
@@ -121,21 +123,21 @@ export const APPLICANTS: Applicant[] = [
         scores: { team: 4, fmf: 4, market: 3, product: 2, traction: null, retention: null, unit: null, defense: null, learning: null, terms: 3 },
         v: 0, fundFit: 58,
         kpis: [k("ARR", "$0.12M", 0.12), k("NRR", "—", null), k("Burn multiple", "—", null), k("Gross margin", "52%", 52), k("Week-8 retention", "—", null), k("FTE", "5", 5)],
-        flags: [], note: "Abstained: only 5 of 10 dimensions evidenced.",
+        flags: [], vc: ["Interesting intro from Northwind — verify traction claims before meeting 2.", "Too early to score; asked for metrics access."], note: "Abstained: only 5 of 10 dimensions evidenced.",
       },
       {
         id: "s2", label: "Meeting 2", date: days(64), stageReached: "decide",
         scores: { team: 4, fmf: 4, market: 3, product: 3, traction: 3, retention: 3, unit: 2, defense: null, learning: 3, terms: 3 },
         v: -2, fundFit: 66,
         kpis: [k("ARR", "$0.48M", 0.48), k("NRR", "104%", 104), k("Burn multiple", "3.1x", 3.1), k("Gross margin", "58%", 58), k("Week-8 retention", "61%", 61), k("FTE", "8", 8)],
-        flags: ["Churn figure differs between deck and transcript"], note: "Decision: Monitor.",
+        flags: ["Churn figure differs between deck and transcript"], vc: ["Churn number changed between deck and transcript — flagged for follow-up.", "Learning rate is impressive; keep warm."], note: "Decision: Monitor.",
       },
       {
         id: "s3", label: "Meeting 3", date: days(19), stageReached: "decide",
         scores: { team: 5, fmf: 4, market: 4, product: 4, traction: 4, retention: 4, unit: 3, defense: 3, learning: 5, terms: 3 },
         v: -3, fundFit: 79,
         kpis: [k("ARR", "$1.35M", 1.35), k("NRR", "118%", 118), k("Burn multiple", "1.6x", 1.6), k("Gross margin", "67%", 67), k("Week-8 retention", "74%", 74), k("FTE", "11", 11)],
-        flags: ["Deck says 14 FTE, careers page implies ~9"], note: "Decision pending · strong learning rate.",
+        flags: ["Deck says 14 FTE, careers page implies ~9"], vc: ["Headcount discrepancy is likely stale deck, not deception — confirm at next call.", "Strongest learning rate in the pipeline this quarter."], note: "Decision pending · strong learning rate.",
       },
     ],
   },
