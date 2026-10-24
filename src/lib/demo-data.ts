@@ -72,7 +72,7 @@ export type Snapshot = {
 };
 
 export const STARTUP = {
-  name: "Lumen Ledger",
+  name: "DoughDilly",
   tagline: "AI close-the-books agent for mid-market finance teams",
   stage: "Seed",
   founders: ["Priya Raman · CEO, ex-Stripe finance eng", "Diego Alvarez · CTO, ex-Ramp ML"],
