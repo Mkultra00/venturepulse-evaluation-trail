@@ -1,5 +1,5 @@
 import type { DimScores } from "./scoring";
-import type { StageId, Step } from "./demo-data";
+import { RUN_SCRIPT, type StageId, type Step } from "./demo-data";
 
 export type Kpi = { label: string; val: string; num: number | null };
 
@@ -113,6 +113,8 @@ export const APPLICANTS: Applicant[] = [
     founders: ["Priya Raman · CEO, ex-Stripe finance eng", "Diego Alvarez · CTO, ex-Ramp ML"],
     referrer: "Northwind Angels (hit rate 31%)",
     live: true,
+    script: RUN_SCRIPT,
+    liveNote: "Live run complete · PRISM passed.",
     snapshots: [
       {
         id: "s1", label: "Meeting 1", date: days(118), stageReached: "gate",
