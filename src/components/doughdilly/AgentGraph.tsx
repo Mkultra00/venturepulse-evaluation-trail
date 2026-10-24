@@ -1,7 +1,7 @@
 import { AGENTS, RUN_SCRIPT, type AgentId } from "@/lib/demo-data";
 
 const EDGES: [AgentId, AgentId][] = [
-  ["KOSA", "INTAKE"],
+  ["DILLY", "INTAKE"],
   ["INTAKE", "SCOUT"], ["INTAKE", "FOUNDER"], ["INTAKE", "METRICS"], ["INTAKE", "MEMORY"],
   ["SCOUT", "VERIFIER"], ["FOUNDER", "VERIFIER"], ["METRICS", "RUBRIC"], ["MEMORY", "RUBRIC"],
   ["VERIFIER", "SCORER"], ["RUBRIC", "SCORER"], ["SCORER", "AUDITOR"],

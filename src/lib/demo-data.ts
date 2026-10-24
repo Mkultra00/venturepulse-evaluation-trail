@@ -14,11 +14,11 @@ export const STAGES: { id: StageId; label: string; hint: string }[] = [
 ];
 
 export type AgentId =
-  | "KOSA" | "INTAKE" | "SCOUT" | "FOUNDER" | "METRICS" | "MEMORY"
+  | "DILLY" | "INTAKE" | "SCOUT" | "FOUNDER" | "METRICS" | "MEMORY"
   | "VERIFIER" | "RUBRIC" | "SCORER" | "AUDITOR";
 
 export const AGENTS: { id: AgentId; x: number; y: number; stage: StageId; tools: string[] }[] = [
-  { id: "KOSA", x: 70, y: 200, stage: "intake", tools: ["Job queue"] },
+  { id: "DILLY", x: 70, y: 200, stage: "intake", tools: ["Job queue"] },
   { id: "INTAKE", x: 200, y: 200, stage: "intake", tools: ["PDF parser", "LLM"] },
   { id: "SCOUT", x: 350, y: 60, stage: "gather", tools: ["GitHub API", "Web fetch"] },
   { id: "FOUNDER", x: 350, y: 155, stage: "gather", tools: ["LinkedIn", "LLM"] },
@@ -39,7 +39,7 @@ export type Step = {
 };
 
 export const RUN_SCRIPT: Step[] = [
-  { stage: "intake", from: "KOSA", to: "INTAKE", kind: "cmd", note: "Plan run · dispatch INTAKE" },
+  { stage: "intake", from: "DILLY", to: "INTAKE", kind: "cmd", note: "Plan run · dispatch INTAKE" },
   { stage: "intake", from: "INTAKE", to: null, kind: "tool", note: "PDF parser → 41 claims extracted" },
   { stage: "gather", from: "INTAKE", to: "SCOUT", kind: "cmd", note: "Fan-out: SCOUT, FOUNDER, METRICS, MEMORY" },
   { stage: "gather", from: "SCOUT", to: null, kind: "tool", note: "GitHub API · 312 commits / 30d, 6 contributors" },
@@ -55,7 +55,7 @@ export const RUN_SCRIPT: Step[] = [
   { stage: "score", from: "VERIFIER", to: "SCORER", kind: "cmd", note: "Merit computed in code · V = −3" },
   { stage: "audit", from: "SCORER", to: "AUDITOR", kind: "cmd", note: "Send run to PRISM" },
   { stage: "audit", from: "AUDITOR", to: null, kind: "ok", note: "PRISM: bias ✓ consistency ✓ explainability ✓" },
-  { stage: "decide", from: "AUDITOR", to: "KOSA", kind: "ok", note: "Scorecard ready for partner" },
+  { stage: "decide", from: "AUDITOR", to: "DILLY", kind: "ok", note: "Scorecard ready for partner" },
 ];
 
 export type Snapshot = {
