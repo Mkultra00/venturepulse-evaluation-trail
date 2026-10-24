@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AgentGraph } from "@/components/doughdilly/AgentGraph";
 import { Workflow } from "@/components/doughdilly/Workflow";
 import { Spark } from "@/components/doughdilly/Spark";
+import { ProgressUpdate } from "@/components/doughdilly/ProgressUpdate";
 import { RUN_SCRIPT, SNAPSHOTS, STARTUP, type Snapshot } from "@/lib/demo-data";
 import { DIMENSIONS, evidencedCount, grade, merit, sinceLabel, ABSTAIN_MIN } from "@/lib/scoring";
 import { cn } from "@/lib/utils";
@@ -176,6 +177,8 @@ function Index() {
               ))}
             </div>
           </section>
+          <ProgressUpdate startup={`${STARTUP.name} (${STARTUP.stage}) — ${STARTUP.tagline}`}
+            kpis={kpis.map((k) => `${k.label}: ${k.val}`).join(", ")} />
           <section className="panel p-4">
             <div className="flex justify-between mb-2"><h2 className="font-semibold">Agent flow & tool use</h2>
               <span className="font-mono text-xs text-muted-foreground">{running ? `step ${step + 1}/${RUN_SCRIPT.length}` : step >= RUN_SCRIPT.length ? "complete" : "idle — press Run"}</span></div>
