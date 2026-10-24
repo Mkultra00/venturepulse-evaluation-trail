@@ -147,6 +147,17 @@ export const APPLICANTS: Applicant[] = [
     founders: ["Nadia Farouk · CEO", "Daniel Okafor · CTO"],
     referrer: "Halyard Ventures pipeline",
     live: false,
+    script: mkScript({
+      claims: 41,
+      scout: "GitHub API · commits 212 → 41 QoQ (−81%), 2 contributors inactive",
+      founder: "Speaker page: 'Senior Manager, AP Product' — not Head of AP",
+      metrics: "Durable ARR $1.2M · $0.9M is paid pilots · top customer ~33%",
+      memory: "Fund memory: no prior contact",
+      verifyFlags: ["ARR includes pilots", "velocity −81%", "roles 11 → 2", "title inflation", "3-months-free banner", "margin excludes model costs"],
+      gatePass: true, dims: 7, v: -3,
+      decide: "Scorecard ready · recommend re-underwrite at lower valuation",
+    }),
+    liveNote: "Live run complete · 6 of 8 deck claims contradicted · PRISM passed.",
     snapshots: [
       {
         id: "m1", label: "Meeting 1 · deck claims", date: "2026-09-29T00:00:00Z", stageReached: "intake",
@@ -173,6 +184,17 @@ export const APPLICANTS: Applicant[] = [
     founders: ["Tomas Herrera · CEO", "Aisha Bello · CTO"],
     referrer: "Halyard Ventures pipeline",
     live: false,
+    script: mkScript({
+      claims: 36,
+      scout: "GitHub API · commits +53% QoQ, 4 contributors",
+      founder: "Bios check out against public record",
+      metrics: "ARR $655k verified, above deck · NRR 116–121% across cohorts",
+      memory: "Fund memory: 1 prior pass (too early)",
+      verifyFlags: ["quoted margin excludes GPU cost"],
+      gatePass: true, dims: 7, v: 5,
+      decide: "Scorecard ready · recommend partner meeting this week",
+    }),
+    liveNote: "Live run complete · claims hold · PRISM passed.",
     snapshots: [
       {
         id: "m1", label: "Meeting 1 · deck claims", date: "2026-10-01T00:00:00Z", stageReached: "intake",
