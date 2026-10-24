@@ -36,28 +36,22 @@ Given the latest known KPIs and a founder's progress update, assess how the upda
 Rules: never invent numbers not in the update; mark direction "unclear" when evidence is thin; flag claims that conflict with the prior KPIs or are unverifiable; give 2-4 concrete follow-up questions.
 "note" is a 3-5 sentence evaluation note for the partner file. You inform; a human partner decides.`;
 
-export async function assessUpdate(apiKey: string, startup: string, kpis: string, update: string) {
-  const provider = createOpenAI({
-    baseURL: "https://ai.gateway.lovable.dev/v1",
-    apiKey,
-    headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
-    fetch: runIdFetch(),
-  });
+export const NINOO_MODEL = "anthropic/claude-sonnet-5-5";
+
+/** Accepts a bare base URL or a pasted curl snippet; returns the OpenAI-compatible base (…/v1). */
+export function ninooBase(raw: string) {
+  const url = raw.match(/https?:\/\/[^\s"']+/)?.[0] ?? raw.trim();
+  return url.replace(/\/(chat\/completions|models)\/?$/, "").replace(/\/$/, "");
+}
+
+export async function assessUpdate(apiKey: string, baseRaw: string, startup: string, kpis: string, update: string) {
+  const provider = createOpenAI({ baseURL: ninooBase(baseRaw), apiKey, fetch: runIdFetch() });
   const result = streamText({
-    model: provider.responses("openai/gpt-6-astra"),
-    instructions: INSTRUCTIONS,
+    model: provider.chat(NINOO_MODEL),
+    system: INSTRUCTIONS,
     messages: [{ role: "user", content: `Startup: ${startup}\nLatest KPIs: ${kpis}\n\nFounder progress update:\n${update}` }],
     output: Output.object({ schema: assessmentSchema }),
     maxRetries: 0,
-    providerOptions: {
-      openai: {
-        forceReasoning: true,
-        reasoningEffort: "low",
-        reasoningSummary: "auto",
-        store: false,
-        include: ["reasoning.encrypted_content"],
-      },
-    },
   });
   try {
     return { ok: true as const, assessment: await result.output };
