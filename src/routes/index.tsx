@@ -4,7 +4,8 @@ import { AgentGraph } from "@/components/doughdilly/AgentGraph";
 import { Workflow } from "@/components/doughdilly/Workflow";
 import { Spark } from "@/components/doughdilly/Spark";
 import { ProgressUpdate } from "@/components/doughdilly/ProgressUpdate";
-import { RUN_SCRIPT, SNAPSHOTS, STARTUP, type Snapshot } from "@/lib/demo-data";
+import { RUN_SCRIPT } from "@/lib/demo-data";
+import { APPLICANTS, type Snapshot } from "@/lib/applicants";
 import { DIMENSIONS, evidencedCount, grade, merit, sinceLabel, ABSTAIN_MIN } from "@/lib/scoring";
 import { cn } from "@/lib/utils";
 import mascotUrl from "@/assets/dilly-mascot.png";
@@ -23,21 +24,38 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+const DD = APPLICANTS[0]!;
 const LIVE: Snapshot = {
-  ...SNAPSHOTS[2]!, id: "live", label: "Live re-eval", date: "", 
-  scores: { ...SNAPSHOTS[2]!.scores, defense: 4, unit: 3 },
-  kpis: { ...SNAPSHOTS[2]!.kpis, arr: 1.62, nrr: 121, burnMultiple: 1.4, grossMargin: 69, week8: 76 },
+  ...DD.snapshots[2]!, id: "live", label: "Live re-eval", date: "",
+  scores: { ...DD.snapshots[2]!.scores, defense: 4, unit: 3 },
+  kpis: DD.snapshots[2]!.kpis.map((k) =>
+    k.label === "ARR" ? { ...k, val: "$1.62M", num: 1.62 }
+    : k.label === "NRR" ? { ...k, val: "121%", num: 121 }
+    : k.label === "Burn multiple" ? { ...k, val: "1.4x", num: 1.4 }
+    : k.label === "Gross margin" ? { ...k, val: "69%", num: 69 }
+    : k.label === "Week-8 retention" ? { ...k, val: "76%", num: 76 }
+    : k),
   fundFit: 82, v: -3, note: "Live run complete · PRISM passed.",
 };
 
 function Index() {
-  const [snaps, setSnaps] = useState<Snapshot[]>(SNAPSHOTS);
-  const [sel, setSel] = useState(SNAPSHOTS.length - 1);
+  const [appId, setAppId] = useState(DD.id);
+  const app = APPLICANTS.find((a) => a.id === appId) ?? DD;
+  const [snaps, setSnaps] = useState<Snapshot[]>(DD.snapshots);
+  const [sel, setSel] = useState(DD.snapshots.length - 1);
   const [step, setStep] = useState(-1);
   const [now, setNow] = useState<Date | null>(null);
   const running = step >= 0 && step < RUN_SCRIPT.length;
   const hvs = useRef<HTMLIFrameElement>(null);
   const [view, setView] = useState<"map" | "holo">("map");
+
+  const pickApplicant = (id: string) => {
+    const a = APPLICANTS.find((x) => x.id === id) ?? DD;
+    setAppId(a.id);
+    setSnaps(a.snapshots);
+    setSel(a.snapshots.length - 1);
+    setStep(-1);
+  };
   useEffect(() => {
     if (!running) return;
     const e = RUN_SCRIPT[step]!;
