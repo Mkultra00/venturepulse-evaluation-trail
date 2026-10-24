@@ -46,15 +46,26 @@ export function ninooBase(raw: string) {
 
 export async function assessUpdate(apiKey: string, baseRaw: string, startup: string, kpis: string, update: string) {
   const provider = createOpenAI({ baseURL: ninooBase(baseRaw), apiKey, fetch: runIdFetch() });
+  const prompt = `Startup: ${startup}\nLatest KPIs: ${kpis}\n\nFounder progress update:\n${update}`;
+  const sessionId = `assess-${startup.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`;
+  const started = performance.now();
   const result = streamText({
     model: provider.chat(NINOO_MODEL),
     system: INSTRUCTIONS,
-    messages: [{ role: "user", content: `Startup: ${startup}\nLatest KPIs: ${kpis}\n\nFounder progress update:\n${update}` }],
+    messages: [{ role: "user", content: prompt }],
     output: Output.object({ schema: assessmentSchema }),
     maxRetries: 0,
   });
   try {
-    return { ok: true as const, assessment: await result.output };
+    const assessment = await result.output;
+    const { emitTrace } = await import("./prism.server");
+    await emitTrace(prompt, JSON.stringify(assessment), {
+      model: NINOO_MODEL,
+      latencyMs: Math.round(performance.now() - started),
+      sessionId,
+      agentId: "progress-assessor",
+    });
+    return { ok: true as const, assessment };
   } catch (e) {
     if (NoObjectGeneratedError.isInstance(e)) return { ok: false as const, error: "The AI response could not be read. Please try again." };
     const status = (e as { statusCode?: number }).statusCode;
