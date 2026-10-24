@@ -71,7 +71,7 @@ function Index() {
       if (step === RUN_SCRIPT.length - 1) {
         const live = { ...LIVE, date: new Date().toISOString() };
         setSnaps((s) => [...s.filter((x) => x.id !== "live"), live]);
-        setSel(SNAPSHOTS.length);
+        setSel(app.snapshots.length);
         setNow(new Date());
         setStep(RUN_SCRIPT.length);
       } else setStep(step + 1);
@@ -85,16 +85,7 @@ function Index() {
   const last = snaps[snaps.length - 1]!;
   const stage = running ? RUN_SCRIPT[step]!.stage : snap.stageReached;
   const log = useMemo(() => RUN_SCRIPT.slice(0, Math.max(0, step + 1)), [step]);
-  const series = (f: (s: Snapshot) => number | null) => snaps.map(f);
-
-  const kpis: { label: string; val: string; f: (s: Snapshot) => number }[] = [
-    { label: "ARR", val: `$${snap.kpis.arr.toFixed(2)}M`, f: (s) => s.kpis.arr },
-    { label: "NRR", val: snap.kpis.nrr ? `${snap.kpis.nrr}%` : "—", f: (s) => s.kpis.nrr },
-    { label: "Burn multiple", val: snap.kpis.burnMultiple ? `${snap.kpis.burnMultiple}x` : "—", f: (s) => s.kpis.burnMultiple },
-    { label: "Gross margin", val: `${snap.kpis.grossMargin}%`, f: (s) => s.kpis.grossMargin },
-    { label: "Week-8 retention", val: snap.kpis.week8 ? `${snap.kpis.week8}%` : "—", f: (s) => s.kpis.week8 },
-    { label: "FTE", val: `${snap.kpis.fte}`, f: (s) => s.kpis.fte },
-  ];
+  const series = (idx: number) => snaps.map((s) => s.kpis[idx]?.num ?? null);
 
   return (
     <main className="min-h-screen px-4 py-6 md:px-8 max-w-7xl mx-auto space-y-5">
