@@ -189,24 +189,24 @@ function Index() {
             </div>
           )}
           <p className="text-xs text-muted-foreground">{snap.note}</p>
-          <div className="text-xs text-muted-foreground">Founders: {STARTUP.founders.join(" · ")}</div>
+          <div className="text-xs text-muted-foreground">Founders: {app.founders.join(" · ")}</div>
         </section>
 
         <div className="lg:col-span-3 space-y-5">
           <section className="panel p-4">
             <h2 className="font-semibold mb-3">KPIs over time</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {kpis.map((k) => (
-                <div key={k.label} className="rounded-md bg-muted p-3">
-                  <div className="text-[11px] text-muted-foreground">{k.label}</div>
-                  <div className="text-xl font-bold font-mono">{k.val}</div>
-                  <Spark values={series(k.f)} active={sel} />
+              {snap.kpis.map((kpi, i) => (
+                <div key={kpi.label} className="rounded-md bg-muted p-3">
+                  <div className="text-[11px] text-muted-foreground">{kpi.label}</div>
+                  <div className="text-xl font-bold font-mono">{kpi.val}</div>
+                  <Spark values={series(i)} active={sel} />
                 </div>
               ))}
             </div>
           </section>
-          <ProgressUpdate startup={`${STARTUP.name} (${STARTUP.stage}) — ${STARTUP.tagline}`}
-            kpis={kpis.map((k) => `${k.label}: ${k.val}`).join(", ")} />
+          <ProgressUpdate startup={`${app.name} (${app.stage}) — ${app.tagline}`}
+            kpis={snap.kpis.map((kpi) => `${kpi.label}: ${kpi.val}`).join(", ")} />
           <section className="panel p-4">
             <div className="flex justify-between mb-2"><h2 className="font-semibold">Agent flow & tool use</h2>
               <span className="font-mono text-xs text-muted-foreground">{running ? `step ${step + 1}/${RUN_SCRIPT.length}` : step >= RUN_SCRIPT.length ? "complete" : "idle — press Run"}</span></div>
