@@ -104,6 +104,16 @@ body.paused #pausedTag{display:inline}
 .ctlgrid .ctl{margin:5px 0}
 .ctlgrid .ctl label{font-size:10px}
 
+#dockToggle{font-size:10px;letter-spacing:.12em;padding:4px 9px}
+body[data-dock="closed"] #dock .docktitle{display:none}
+body[data-dock="closed"] #dock .ctlgrid{display:none}
+body[data-dock="closed"] #dock>section{padding:7px 12px}
+body[data-dock="closed"] #dock .dockrow{align-items:center;gap:10px}
+body[data-dock="closed"] #dock .dockbtns{flex:1 1 auto;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+body[data-dock="closed"] #dock .dockbtns .btnrow{margin:0;display:flex;gap:6px}
+body[data-dock="closed"] #dock .dockbtns .tog{margin:0}
+body[data-dock="closed"] #hint{bottom:64px}
+
 
 h2{font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.14em;margin:0 0 10px;color:var(--white)}
 h3{font-family:var(--display);font-weight:500;font-size:11px;letter-spacing:.1em;color:var(--dim);margin:14px 0 6px;border-bottom:1px solid var(--line);padding-bottom:4px}
@@ -272,7 +282,7 @@ select{width:100%;background:var(--panel-strong);border:1px solid var(--line-str
 
 <aside id="dock">
   <section data-tab="controls">
-    <h2>Controls</h2>
+    <h2 class="docktitle">Controls</h2>
     <div class="dockrow">
       <div class="dockbtns">
     <div class="btnrow">
@@ -284,6 +294,7 @@ select{width:100%;background:var(--panel-strong);border:1px solid var(--line-str
       <button class="btn" id="bReset">Reset view</button>
     </div>
     <label class="tog" id="autoRow"><input type="checkbox" id="cAuto" checked> Auto-dispatch new tasks</label>
+      <button class="btn" id="dockToggle" aria-expanded="false">Show controls</button>
       </div>
       <div class="ctlgrid">
     <div class="ctl"><label for="sRot">Hologram rotation <output id="oRot"></output></label><input type="range" id="sRot" min="0" max="2" step="0.05" value="0.6"></div>
@@ -297,6 +308,18 @@ select{width:100%;background:var(--panel-strong);border:1px solid var(--line-str
     </div>
   </section>
 </aside>
+<script>
+(function(){
+  var t=document.getElementById('dockToggle');
+  function set(open){
+    document.body.dataset.dock=open?'open':'closed';
+    t.textContent=open?'Hide controls':'Show controls';
+    t.setAttribute('aria-expanded',open?'true':'false');
+  }
+  t.addEventListener('click',function(){set(document.body.dataset.dock!=='open');});
+  set(false);
+})();
+</script>
 <div id="hint">Drag to rotate · scroll or pinch to zoom · tap a node to inspect</div>
 
 <nav id="tabs">
