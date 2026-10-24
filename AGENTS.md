@@ -25,8 +25,12 @@ something is covered, assume it is not and wire it.
 
 ## Roundtable activity log
 
-Assessment runs are also logged to Roundtable as `kind=task` records (one per
-run, with model, latency, tokens, gateway run_id and PRISM session_id) so
-Dilly's activity shows next to PRISM traces. MCP tools are builder-side only —
-the app cannot call Roundtable at runtime — so runs are logged by the agent
-after they happen (enumerated from AI Gateway logs), not by app code.
+Each assessment run is logged live to Roundtable as a `kind=task` record (one
+per run, with confidence, KPI impacts, red flags, model, latency and PRISM
+session_id) so Dilly's activity shows next to PRISM traces. Wired at
+src/lib/roundtable.server.ts (emitAssessmentRecord → POST
+https://roundtable.bot/api/tools/record with Bearer ROUNDTABLE_AGENT_KEY,
+fire-and-forget like emitTrace), called from assessUpdate in
+src/lib/progress.server.ts. The Roundtable MCP connector is builder-side only;
+the app uses the plain HTTP tool API with its own subagent key
+("doughdilly-app"). Never hand the MCP tools to app code.
