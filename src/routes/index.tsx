@@ -35,6 +35,7 @@ function Index() {
   const script = app.script;
   const running = step >= 0 && step < script.length;
   const hvs = useRef<HTMLIFrameElement>(null);
+  const flow = useRef<HTMLIFrameElement>(null);
   const [view, setView] = useState<"map" | "holo">("map");
 
   const pickApplicant = (id: string) => {
@@ -110,11 +111,6 @@ function Index() {
         <div className="flex justify-between mb-3"><h2 className="font-semibold">Where the applicant is</h2>
           <span className="font-mono text-xs text-muted-foreground">{running ? "live run" : snap.label}</span></div>
         <Workflow current={stage} running={running} />
-      </section>
-
-      <section className="panel p-4">
-        <h2 className="font-semibold mb-2">Applicant process — <span className="text-primary">{app.name}</span></h2>
-        <iframe src="/flow.html" title={`${app.name} applicant process flowchart`} className="h-[920px] w-full rounded border border-border bg-background" />
       </section>
 
       <section className="panel p-4">
