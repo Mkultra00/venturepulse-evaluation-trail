@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { AgentGraph } from "@/components/kosa/AgentGraph";
-import { Workflow } from "@/components/kosa/Workflow";
-import { Spark } from "@/components/kosa/Spark";
+import { AgentGraph } from "@/components/doughdilly/AgentGraph";
+import { Workflow } from "@/components/doughdilly/Workflow";
+import { Spark } from "@/components/doughdilly/Spark";
 import { RUN_SCRIPT, SNAPSHOTS, STARTUP, type Snapshot } from "@/lib/demo-data";
 import { DIMENSIONS, evidencedCount, grade, merit, sinceLabel, ABSTAIN_MIN } from "@/lib/scoring";
 import { cn } from "@/lib/utils";
