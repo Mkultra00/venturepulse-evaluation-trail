@@ -83,7 +83,7 @@ function Index() {
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex items-center gap-3">
           <img src={mascotUrl} alt="DoughDilly robot mascot: Show me the traction" width={816} height={816}
-            className="h-16 w-16 rounded-full border border-primary shadow-glow object-cover" />
+            className="h-64 w-64 rounded-full border-2 border-primary shadow-glow object-cover shrink-0" />
           <div>
             <div className="font-mono text-xs text-primary tracking-widest">DOUGHDILLY · DEMO MODE · SYNTHETIC DATA</div>
             <h1 className="text-3xl font-bold">{STARTUP.name} <span className="text-muted-foreground text-lg font-normal">· {STARTUP.stage}</span></h1>
