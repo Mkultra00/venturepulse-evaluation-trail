@@ -35,6 +35,7 @@ function Index() {
   const script = app.script;
   const running = step >= 0 && step < script.length;
   const hvs = useRef<HTMLIFrameElement>(null);
+  const flow = useRef<HTMLIFrameElement>(null);
   const [view, setView] = useState<"map" | "holo">("map");
 
   const pickApplicant = (id: string) => {
@@ -75,6 +76,14 @@ function Index() {
   const log = useMemo(() => script.slice(0, Math.max(0, step + 1)), [step, script]);
   const series = (idx: number) => snaps.map((s) => s.kpis[idx]?.num ?? null);
 
+  // Highlight the applicant's current position on the flowchart
+  useEffect(() => {
+    const post = () => flow.current?.contentWindow?.postMessage({ flow: { node: stage, via: running ? "live run" : snap.label } }, "*");
+    post();
+    const t = setTimeout(post, 1200); // retry once the iframe has loaded
+    return () => clearTimeout(t);
+  }, [stage, running, snap.label]);
+
   return (
     <main className="min-h-screen px-4 py-6 md:px-8 max-w-7xl mx-auto space-y-5">
       <header className="flex flex-wrap items-end justify-between gap-4">
@@ -110,11 +119,6 @@ function Index() {
         <div className="flex justify-between mb-3"><h2 className="font-semibold">Where the applicant is</h2>
           <span className="font-mono text-xs text-muted-foreground">{running ? "live run" : snap.label}</span></div>
         <Workflow current={stage} running={running} />
-      </section>
-
-      <section className="panel p-4">
-        <h2 className="font-semibold mb-2">Applicant process — <span className="text-primary">{app.name}</span></h2>
-        <iframe src="/flow.html" title={`${app.name} applicant process flowchart`} className="h-[920px] w-full rounded border border-border bg-background" />
       </section>
 
       <section className="panel p-4">
@@ -175,6 +179,12 @@ function Index() {
               {snap.flags.map((f) => <div key={f}>• {f}</div>)}
             </div>
           )}
+          {snap.vc.length > 0 && (
+            <div className="rounded-md border border-border p-2 text-xs">
+              <div className="font-semibold text-accent mb-1">VC comments · {snap.label}</div>
+              {snap.vc.map((c) => <div key={c} className="text-muted-foreground">“{c}”</div>)}
+            </div>
+          )}
           <p className="text-xs text-muted-foreground">{snap.note}</p>
           <div className="text-xs text-muted-foreground">Founders: {app.founders.join(" · ")}</div>
         </section>
@@ -220,6 +230,15 @@ function Index() {
           </section>
         </div>
       </div>
+
+      <section className="panel p-4">
+        <div className="flex justify-between mb-2">
+          <h2 className="font-semibold">Applicant process — <span className="text-primary">{app.name}</span></h2>
+          <span className="font-mono text-xs text-muted-foreground">highlighted: {running ? `live run · ${stage}` : `${snap.label} · ${stage}`}</span>
+        </div>
+        <iframe ref={flow} src="/flow.html" title={`${app.name} applicant process flowchart`} className="h-[920px] w-full rounded border border-border bg-background" />
+      </section>
+
       <footer className="text-center text-[11px] text-muted-foreground">DoughDilly informs partners; decisions are always made by a human.</footer>
     </main>
   );

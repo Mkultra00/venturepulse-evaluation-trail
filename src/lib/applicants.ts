@@ -13,6 +13,8 @@ export type Snapshot = {
   fundFit: number;
   kpis: Kpi[];
   flags: string[];
+  /** partner/associate comments recorded at this meeting */
+  vc: string[];
   note: string;
 };
 
@@ -121,21 +123,21 @@ export const APPLICANTS: Applicant[] = [
         scores: { team: 4, fmf: 4, market: 3, product: 2, traction: null, retention: null, unit: null, defense: null, learning: null, terms: 3 },
         v: 0, fundFit: 58,
         kpis: [k("ARR", "$0.12M", 0.12), k("NRR", "—", null), k("Burn multiple", "—", null), k("Gross margin", "52%", 52), k("Week-8 retention", "—", null), k("FTE", "5", 5)],
-        flags: [], note: "Abstained: only 5 of 10 dimensions evidenced.",
+        flags: [], vc: ["Interesting intro from Northwind — verify traction claims before meeting 2.", "Too early to score; asked for metrics access."], note: "Abstained: only 5 of 10 dimensions evidenced.",
       },
       {
         id: "s2", label: "Meeting 2", date: days(64), stageReached: "decide",
         scores: { team: 4, fmf: 4, market: 3, product: 3, traction: 3, retention: 3, unit: 2, defense: null, learning: 3, terms: 3 },
         v: -2, fundFit: 66,
         kpis: [k("ARR", "$0.48M", 0.48), k("NRR", "104%", 104), k("Burn multiple", "3.1x", 3.1), k("Gross margin", "58%", 58), k("Week-8 retention", "61%", 61), k("FTE", "8", 8)],
-        flags: ["Churn figure differs between deck and transcript"], note: "Decision: Monitor.",
+        flags: ["Churn figure differs between deck and transcript"], vc: ["Churn number changed between deck and transcript — flagged for follow-up.", "Learning rate is impressive; keep warm."], note: "Decision: Monitor.",
       },
       {
         id: "s3", label: "Meeting 3", date: days(19), stageReached: "decide",
         scores: { team: 5, fmf: 4, market: 4, product: 4, traction: 4, retention: 4, unit: 3, defense: 3, learning: 5, terms: 3 },
         v: -3, fundFit: 79,
         kpis: [k("ARR", "$1.35M", 1.35), k("NRR", "118%", 118), k("Burn multiple", "1.6x", 1.6), k("Gross margin", "67%", 67), k("Week-8 retention", "74%", 74), k("FTE", "11", 11)],
-        flags: ["Deck says 14 FTE, careers page implies ~9"], note: "Decision pending · strong learning rate.",
+        flags: ["Deck says 14 FTE, careers page implies ~9"], vc: ["Headcount discrepancy is likely stale deck, not deception — confirm at next call.", "Strongest learning rate in the pipeline this quarter."], note: "Decision pending · strong learning rate.",
       },
     ],
   },
@@ -164,7 +166,7 @@ export const APPLICANTS: Applicant[] = [
         scores: scores({ team: 8, market: 9, product: 9, traction: 9, unit: 8, defense: 8, terms: 7 }),
         v: 0, fundFit: 84,
         kpis: [k("ARR (deck)", "$2.10M", 2.1), k("Gross margin (deck)", "70%", 70), k("Growth (deck)", "40% MoM", 40), k("Open roles", "11", 11), k("Team page", "14", 14), k("Commit velocity", "—", null)],
-        flags: [], note: "Deck claims taken at face value. Verification not yet run.",
+        flags: [], vc: ["Great pitch — but every number needs verification before we lean in.", "Asked for data room and GitHub access."], note: "Deck claims taken at face value. Verification not yet run.",
       },
       {
         id: "m3", label: "Meeting 3 · verified", date: "2026-10-20T00:00:00Z", stageReached: "decide",
@@ -172,6 +174,7 @@ export const APPLICANTS: Applicant[] = [
         v: vadj(-68.8), fundFit: 84,
         kpis: [k("Durable ARR", "$1.20M", 1.2), k("Gross margin", "~52%", 52), k("Commit velocity", "−81%", -81), k("Open roles", "2", 2), k("Team page", "14", 14), k("Largest customer", "~33%", 33)],
         flags: flags(["RF_PILOT_ARR", "RF_CUSTOMER_CONCENTRATION", "RF_SINGLE_MODEL_PROVIDER", "RF_PRE_INFERENCE_MARGIN", "RF_VELOCITY_DROP", "RF_HIRING_FREEZE", "RF_TITLE_INFLATION", "RF_VALUATION_STRETCH", "RF_DISCOUNTING"]),
+        vc: ["COO admitted $0.9M of the $2.1M is paid pilots — that changes the round math.", "Re-underwrite on $1.2M durable ARR; valuation should reset.", "Velocity and hiring collapse suggest the team is winding down."],
         note: "Do not take to IC as pitched. Re-underwrite on ~$1.2M durable ARR; valuation should reset. 6 of 8 deck claims contradicted.",
       },
     ],
@@ -201,7 +204,7 @@ export const APPLICANTS: Applicant[] = [
         scores: scores({ team: 9, market: 7, product: 8, traction: 7, unit: 8, defense: 7, terms: 7 }),
         v: 0, fundFit: 92,
         kpis: [k("ARR (deck)", "$0.60M", 0.6), k("Customers", "19", 19), k("Pilots", "none", 0), k("Open roles", "3", 3), k("Commit velocity", "—", null), k("NRR", "—", null)],
-        flags: [], note: "Control case: claims expected to hold up.",
+        flags: [], vc: ["No free pilots — paid first month. Good sign.", "Claims look conservative; verify and move."], note: "Control case: claims expected to hold up.",
       },
       {
         id: "m3", label: "Meeting 3 · verified", date: "2026-10-21T00:00:00Z", stageReached: "decide",
@@ -209,6 +212,7 @@ export const APPLICANTS: Applicant[] = [
         v: vadj(91.7), fundFit: 92,
         kpis: [k("ARR (verified)", "$0.66M", 0.66), k("Cohort NRR", "116–121%", 118), k("Commit velocity", "+53%", 53), k("Open roles", "7", 7), k("Case studies", "6", 6), k("Gross margin", "70%", 70)],
         flags: flags(["RF_PRE_INFERENCE_MARGIN"]),
+        vc: ["ARR came in above deck — rare and welcome.", "Move fast; competing term sheet expires next Friday."],
         note: "Take to partner meeting this week. Move fast; competing term sheet expires next Friday.",
       },
     ],
@@ -238,7 +242,7 @@ export const APPLICANTS: Applicant[] = [
         scores: scores({ team: 6, market: 6, product: 6, traction: 5, unit: 6, defense: 5, terms: 7 }),
         v: 0, fundFit: 90,
         kpis: [k("ARR (deck)", "~$0.30M", 0.3), k("Customers", "a few dozen", null), k("Open roles (2025)", "0", 0), k("Commit velocity (2025)", "−42%", -42), k("Price/seat", "$400", 400), k("Gross margin", "~70%", 70)],
-        flags: [], note: "Quiet founder; deck undersells. 2025 snapshots pre-date incorporation.",
+        flags: [], vc: ["Founder is quiet — 'around three hundred K, I'd have to check.' Pull the data room before judging.", "Tracks bids won, not ARR. Domain-deep, not metrics-deep."], note: "Quiet founder; deck undersells. 2025 snapshots pre-date incorporation.",
       },
       {
         id: "m3", label: "Meeting 3 · verified", date: "2026-10-21T00:00:00Z", stageReached: "decide",
@@ -246,6 +250,7 @@ export const APPLICANTS: Applicant[] = [
         v: vadj(100), fundFit: 90,
         kpis: [k("ARR (data room)", "$0.41M", 0.41), k("Paying accounts", "46", 46), k("Largest account", "7%", 7), k("Commit velocity", "+89%", 89), k("Price/seat", "$650", 650), k("Gross margin", "74%", 74)],
         flags: [],
+        vc: ["Data room shows $34.2k MRR — well above the deck. Raised prices in September and nobody churned.", "'The value is the estimating rules Maya wrote down over ten years' — that's the moat answer we wanted."],
         note: "Take to partner meeting. Founder undersells; the data is better than the deck. Verified polygon sits outside claimed.",
       },
     ],
@@ -275,7 +280,7 @@ export const APPLICANTS: Applicant[] = [
         scores: scores({ team: 8, market: 7, product: 8, traction: 7, unit: 7, defense: 7, terms: 7 }),
         v: 0, fundFit: 88,
         kpis: [k("ARR", "$0.79M", 0.79), k("Customers", "5", 5), k("Warehouses", "14", 14), k("Gross margin", "70%", 70), k("Largest customer", "24%", 24), k("Commit velocity", "—", null)],
-        flags: [], note: "Good metrics on paper. Legal diligence not yet run.",
+        flags: [], vc: ["Metrics look real; start legal diligence early.", "Asked about CTO's history with Reverso."], note: "Good metrics on paper. Legal diligence not yet run.",
       },
       {
         id: "m3", label: "Meeting 3 · verified", date: "2026-10-21T00:00:00Z", stageReached: "decide",
@@ -283,6 +288,7 @@ export const APPLICANTS: Applicant[] = [
         v: vadj(0), fundFit: 88,
         kpis: [k("ARR", "$0.79M", 0.79), k("Customers", "5", 5), k("Warehouses", "14", 14), k("Gross margin", "70%", 70), k("Commit velocity", "−4%", -4), k("Open roles", "2", 2)],
         flags: flags(["RF_IP_NOT_ASSIGNED", "RF_FOUNDER_NOT_FULLTIME", "RF_SINGLE_MODEL_PROVIDER"]),
+        vc: ["Hold until the IP assignment is signed and counsel reviews the Reverso clause.", "Metrics are real — this is a legal problem, not a business problem."],
         note: "Do not proceed until the CTO's IP assignment is signed and Reverso's invention-assignment clause is reviewed by counsel. Metrics are real.",
       },
     ],
@@ -313,6 +319,7 @@ export const APPLICANTS: Applicant[] = [
         v: 0, fundFit: 86,
         kpis: [k("ARR", "—", null), k("Site", "waitlist only", null), k("GitHub", "none found", null), k("Careers", "none found", null), k("Customers", "—", null), k("Team", "2", 2)],
         flags: flags(["RF_FOUNDER_NOT_FULLTIME", "RF_UNVERIFIABLE_TRACTION"]),
+        vc: ["Not enough to score — sent the four diligence asks.", "CTO being undisclosed at pre-seed is unusual but not fatal."],
         note: "Abstained: only 3 of 7 dimensions have verifiable evidence (minimum 4). Unverified claims are not marked contradicted — ask for the four diligence items before a second meeting.",
       },
     ],
@@ -343,6 +350,7 @@ export const APPLICANTS: Applicant[] = [
         v: vadj(80), fundFit: 18,
         kpis: [k("Revenue", "pre-revenue", null), k("Commit velocity", "+9%", 9), k("Repo stars", "2,318", 2318), k("Open roles", "9", 9), k("Model", "in-house", null), k("Publications", "yes", null)],
         flags: [],
+        vc: ["Strongest technical team we've seen this quarter.", "Off thesis for Fund II — refer to a bio-focused co-investor and keep warm."],
         note: "Pass on fit, not on merit. Biotech is out of thesis for Halyard Fund II — refer to a bio-focused co-investor and keep warm.",
       },
     ],
@@ -372,7 +380,7 @@ export const APPLICANTS: Applicant[] = [
         scores: scores({ team: 10, market: 8, product: 8, traction: 8, unit: 8, defense: 7, terms: 7 }),
         v: 0, fundFit: 82,
         kpis: [k("ARR (deck)", "$1.00M", 1.0), k("Customers", "50+", 50), k("Open roles (site)", "10", 10), k("Commit velocity", "—", null), k("CEO press", "extensive", null), k("Gross margin", "—", null)],
-        flags: [], note: "Hype-heavy CEO bio. Check whether the numbers or the press carry the team score.",
+        flags: [], vc: ["CEO's press is impressive — verify how much is real.", "Underwrite the CTO and the numbers, not the narrative."], note: "Hype-heavy CEO bio. Check whether the numbers or the press carry the team score.",
       },
       {
         id: "m3", label: "Meeting 3 · verified", date: "2026-10-20T00:00:00Z", stageReached: "decide",
@@ -380,6 +388,7 @@ export const APPLICANTS: Applicant[] = [
         v: vadj(30), fundFit: 82,
         kpis: [k("ARR (verified)", "$0.93M", 0.93), k("Customers", "52", 52), k("Largest customer", "6%", 6), k("Commit velocity", "+8%", 8), k("Open roles (ATS)", "12", 12), k("Model providers", "2", 2)],
         flags: flags(["RF_VALUATION_STRETCH"]),
+        vc: ["ARR 7% under deck — within tolerance, no flag.", "Empty careers page turned out to be an ATS move, not a hiring freeze. Good catch by the verifier.", "Solid business, priced high at 32x."],
         note: "Solid business, priced high (32x). Team score rests on the CTO and the numbers, not the CEO's press. Empty careers page = jobs moved to an ATS, not a hiring freeze.",
       },
     ],

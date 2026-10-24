@@ -523,6 +523,14 @@ const speeds=[1,2,0.5];
 $('#speed').onclick=()=>{speed=speeds[(speeds.indexOf(speed)+1)%speeds.length];$('#speed').textContent=`Speed ${speed===0.5?'½':speed}×`};
 $('#zoom').onclick=()=>{const z=$('#stage').classList.toggle('zoomed');$('#zoom').textContent=z?'Fit to screen':'Zoom in'};
 
+/* ---------- external control (host app can highlight a node) ---------- */
+window.addEventListener('message',(ev)=>{
+  const m=ev.data&&ev.data.flow;if(!m||!G)return;
+  if(m.node==='auto'){startLoop(300);return}
+  const n=G.nodes.get(m.node);if(!n)return;
+  stopLoop();clearTrail();stepNo=m.stepNo||0;arrive(n,m.via);
+});
+
 /* ---------- editor ---------- */
 const dsl=$('#dsl');
 function apply(src){
