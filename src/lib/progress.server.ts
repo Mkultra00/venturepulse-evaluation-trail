@@ -67,7 +67,10 @@ export async function assessUpdate(apiKey: string, baseRaw: string, startup: str
     });
     return { ok: true as const, assessment };
   } catch (e) {
-    if (NoObjectGeneratedError.isInstance(e)) return { ok: false as const, error: "The AI response could not be read. Please try again." };
+    if (NoObjectGeneratedError.isInstance(e)) {
+      console.error("assessUpdate: unparseable model output:", (e as { text?: string }).text?.slice(0, 2000));
+      return { ok: false as const, error: "The AI response could not be read. Please try again." };
+    }
     const status = (e as { statusCode?: number }).statusCode;
     console.error("assessUpdate failed", status, e);
     if (status === 402) return { ok: false as const, error: "AI credits are used up. Add credits in Settings → Plans & credits." };
