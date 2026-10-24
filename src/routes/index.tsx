@@ -95,8 +95,15 @@ function Index() {
             className="h-64 w-64 rounded-3xl border-2 border-primary shadow-glow object-contain shrink-0" />
           <div>
             <div className="font-mono text-xs text-primary tracking-widest">DOUGHDILLY · DEMO MODE · SYNTHETIC DATA</div>
-            <h1 className="text-3xl font-bold">{STARTUP.name} <span className="text-muted-foreground text-lg font-normal">· {STARTUP.stage}</span></h1>
-            <p className="text-sm text-muted-foreground">{STARTUP.tagline} · Referred by {STARTUP.referrer}</p>
+            <label className="mt-1 block">
+              <span className="text-[10px] uppercase font-mono text-muted-foreground">Applicant</span>
+              <select value={appId} onChange={(e) => pickApplicant(e.target.value)} disabled={running}
+                className="mt-0.5 block rounded-md border border-border bg-background px-2 py-1.5 text-xl font-bold text-foreground disabled:opacity-60">
+                {APPLICANTS.map((a) => <option key={a.id} value={a.id}>{a.name}{a.live ? " (live demo)" : ""}</option>)}
+              </select>
+            </label>
+            <div className="text-muted-foreground text-sm font-normal">{app.stage}</div>
+            <p className="text-sm text-muted-foreground">{app.tagline} · Referred by {app.referrer}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -104,9 +111,10 @@ function Index() {
             <div className="text-[10px] uppercase text-muted-foreground font-mono">Last evaluated</div>
             <div className="font-mono text-lg text-accent">{now && last.date ? sinceLabel(last.date, now) : "—"}</div>
           </div>
-          <button onClick={() => setStep(0)} disabled={running || !now}
+          <button onClick={() => setStep(0)} disabled={running || !now || !app.live}
+            title={app.live ? undefined : "Live run is scripted for the DoughDilly demo applicant"}
             className="rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground shadow-glow disabled:opacity-60">
-            {!now ? "Loading…" : running ? "Agents running…" : "▶ Run live evaluation"}
+            {!now ? "Loading…" : running ? "Agents running…" : app.live ? "▶ Run live evaluation" : "▶ Live run (demo applicant only)"}
           </button>
         </div>
       </header>
@@ -118,8 +126,8 @@ function Index() {
       </section>
 
       <section className="panel p-4">
-        <h2 className="font-semibold mb-2">Applicant process — <span className="text-primary">{STARTUP.name}</span></h2>
-        <iframe src="/flow.html" title={`${STARTUP.name} applicant process flowchart`} className="h-[920px] w-full rounded border border-border bg-background" />
+        <h2 className="font-semibold mb-2">Applicant process — <span className="text-primary">{app.name}</span></h2>
+        <iframe src="/flow.html" title={`${app.name} applicant process flowchart`} className="h-[920px] w-full rounded border border-border bg-background" />
       </section>
 
       <section className="panel p-4">
