@@ -179,6 +179,12 @@ function Index() {
               {snap.flags.map((f) => <div key={f}>• {f}</div>)}
             </div>
           )}
+          {snap.vc.length > 0 && (
+            <div className="rounded-md border border-border p-2 text-xs">
+              <div className="font-semibold text-accent mb-1">VC comments · {snap.label}</div>
+              {snap.vc.map((c) => <div key={c} className="text-muted-foreground">“{c}”</div>)}
+            </div>
+          )}
           <p className="text-xs text-muted-foreground">{snap.note}</p>
           <div className="text-xs text-muted-foreground">Founders: {app.founders.join(" · ")}</div>
         </section>
@@ -224,6 +230,15 @@ function Index() {
           </section>
         </div>
       </div>
+
+      <section className="panel p-4">
+        <div className="flex justify-between mb-2">
+          <h2 className="font-semibold">Applicant process — <span className="text-primary">{app.name}</span></h2>
+          <span className="font-mono text-xs text-muted-foreground">highlighted: {running ? `live run · ${stage}` : `${snap.label} · ${stage}`}</span>
+        </div>
+        <iframe ref={flow} src="/flow.html" title={`${app.name} applicant process flowchart`} className="h-[920px] w-full rounded border border-border bg-background" />
+      </section>
+
       <footer className="text-center text-[11px] text-muted-foreground">DoughDilly informs partners; decisions are always made by a human.</footer>
     </main>
   );
