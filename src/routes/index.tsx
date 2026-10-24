@@ -37,6 +37,7 @@ function Index() {
   const hvs = useRef<HTMLIFrameElement>(null);
   const flow = useRef<HTMLIFrameElement>(null);
   const [view, setView] = useState<"map" | "holo">("map");
+  const [page, setPage] = useState<"app" | "guide">("app");
 
   const pickApplicant = (id: string) => {
     const a = APPLICANTS.find((x) => x.id === id) ?? DD;
@@ -115,6 +116,18 @@ function Index() {
         </div>
       </header>
 
+      <div role="tablist" className="flex gap-1 border-b border-border">
+        {(["app", "guide"] as const).map((t) => (
+          <button key={t} role="tab" aria-selected={page === t} onClick={() => setPage(t)}
+            className={cn("px-4 py-2 text-sm font-semibold border-b-2 -mb-px", page === t ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground")}>
+            {t === "app" ? "Dashboard" : "How to use"}
+          </button>
+        ))}
+      </div>
+
+      {page === "guide" && <HowTo />}
+
+      <div className={cn("space-y-5", page !== "app" && "hidden")}>
       <section className="panel p-4">
         <div className="flex justify-between mb-3"><h2 className="font-semibold">Where the applicant is</h2>
           <span className="font-mono text-xs text-muted-foreground">{running ? "live run" : snap.label}</span></div>
@@ -238,8 +251,41 @@ function Index() {
         </div>
         <iframe ref={flow} src="/flow.html" title={`${app.name} applicant process flowchart`} className="h-[920px] w-full rounded border border-border bg-background" />
       </section>
+      </div>
 
       <footer className="text-center text-[11px] text-muted-foreground">DoughDilly informs partners; decisions are always made by a human.</footer>
     </main>
+  );
+}
+
+const STEPS: [string, string][] = [
+  ["Pick an applicant", "Use the Applicant menu at the top. DoughDilly is the live demo; the others are sample startups, each with its own story (e.g. Ledgerline's numbers fall apart under verification, Quillstack has too little data to score)."],
+  ["Run a live evaluation", "Press ▶ Run live evaluation. The agents work step by step: you'll see them light up in the agent map, the event stream, and the progress bar. When done, a \"Live re-eval\" card is added to the timeline and \"Last evaluated\" resets."],
+  ["Move through time", "Click any meeting on the Evaluation timeline. The report card, KPIs, red flags and VC comments all switch to that point in time, so you can see how the startup changed between meetings."],
+  ["Read the report card", "Merit is the overall score (0–100 with a letter grade); Fund fit is how well it matches the fund's thesis. Each bar is one area like team or traction. \"Not enough data\" means fewer than 6 of 10 areas have evidence, so DoughDilly refuses to guess."],
+  ["Check red flags & VC comments", "Red flags are problems the agents caught (e.g. claims that don't match the data). VC comments are partner notes from that meeting."],
+  ["Add a founder's progress update", "Paste an update (or press Use sample update) and press Assess update. AI estimates how it moves each KPI, flags shaky claims, and drafts a note for the partner file. It doesn't change the scores."],
+  ["Watch the agents", "In Agent flow & tool use, switch between the flat Visualization and Holographic 3D. In 3D, press Show controls at the bottom to adjust the view."],
+  ["See where they are in the process", "The Applicant process chart at the bottom highlights the applicant's current step and follows a live run."],
+];
+
+function HowTo() {
+  return (
+    <section className="panel p-6 space-y-5">
+      <div>
+        <h2 className="text-2xl font-bold">How to use DoughDilly</h2>
+        <p className="text-sm text-muted-foreground">DoughDilly helps investors track a startup over time. AI agents gather and check evidence, score it, and show their work. A human partner always makes the call.</p>
+      </div>
+      <ol className="grid md:grid-cols-2 gap-3">
+        {STEPS.map(([t, d], i) => (
+          <li key={t} className="rounded-md bg-muted p-4">
+            <div className="font-mono text-xs text-primary">STEP {i + 1}</div>
+            <div className="font-semibold">{t}</div>
+            <p className="text-sm text-muted-foreground mt-1">{d}</p>
+          </li>
+        ))}
+      </ol>
+      <p className="text-xs text-muted-foreground">All companies and numbers here are made up for the demo.</p>
+    </section>
   );
 }
