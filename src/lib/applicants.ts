@@ -295,6 +295,17 @@ export const APPLICANTS: Applicant[] = [
     founders: ["Ryan Castellano · CEO", "Undisclosed · CTO"],
     referrer: "Halyard Ventures pipeline",
     live: false,
+    script: mkScript({
+      claims: 14,
+      scout: "GitHub API · no public repos found",
+      founder: "CTO undisclosed · CEO second job unconfirmed",
+      metrics: "No revenue data · site is waitlist only",
+      memory: "Fund memory: no prior contact",
+      verifyFlags: ["traction claims unverifiable", "founder possibly not full time"],
+      gatePass: false, dims: 3, v: 0,
+      decide: "Abstained · 4 diligence items requested before meeting 2",
+    }),
+    liveNote: "Live run complete · abstained, not enough verifiable evidence.",
     snapshots: [
       {
         id: "m1", label: "Meeting 1 · only data", date: "2026-10-17T00:00:00Z", stageReached: "gate",
@@ -314,6 +325,17 @@ export const APPLICANTS: Applicant[] = [
     founders: ["Dr. Lena Vogt · CEO", "Dr. Kenji Mori · CSO"],
     referrer: "Halyard Ventures pipeline",
     live: false,
+    script: mkScript({
+      claims: 19,
+      scout: "GitHub API · commits +9% QoQ · 2.3k stars · in-house model",
+      founder: "Two PhD founders, publications check out",
+      metrics: "Pre-revenue · wet-lab cost structure",
+      memory: "Fund memory: thesis check → biotech out of scope",
+      verifyFlags: [],
+      gatePass: true, dims: 7, v: 4,
+      decide: "Scorecard ready · strong merit, fit 18 — pass on thesis, refer out",
+    }),
+    liveNote: "Live run complete · merit strong, off thesis · PRISM passed.",
     snapshots: [
       {
         id: "m1", label: "Meeting 1 · verified", date: "2026-10-06T00:00:00Z", stageReached: "decide",
