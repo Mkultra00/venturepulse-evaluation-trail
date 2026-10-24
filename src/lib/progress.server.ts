@@ -1,5 +1,5 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { NoObjectGeneratedError, Output, streamText } from "ai";
+import { streamText } from "ai";
 import { z } from "zod";
 
 const RUN_ID = "X-Lovable-AIG-Run-ID";
