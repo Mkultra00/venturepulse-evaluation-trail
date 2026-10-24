@@ -7,6 +7,7 @@ import { ProgressUpdate } from "@/components/doughdilly/ProgressUpdate";
 import { RUN_SCRIPT, SNAPSHOTS, STARTUP, type Snapshot } from "@/lib/demo-data";
 import { DIMENSIONS, evidencedCount, grade, merit, sinceLabel, ABSTAIN_MIN } from "@/lib/scoring";
 import { cn } from "@/lib/utils";
+import mascotUrl from "@/assets/dilly-mascot.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -80,10 +81,14 @@ function Index() {
   return (
     <main className="min-h-screen px-4 py-6 md:px-8 max-w-7xl mx-auto space-y-5">
       <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <div className="font-mono text-xs text-primary tracking-widest">DOUGHDILLY · DEMO MODE · SYNTHETIC DATA</div>
-          <h1 className="text-3xl font-bold">{STARTUP.name} <span className="text-muted-foreground text-lg font-normal">· {STARTUP.stage}</span></h1>
-          <p className="text-sm text-muted-foreground">{STARTUP.tagline} · Referred by {STARTUP.referrer}</p>
+        <div className="flex items-center gap-3">
+          <img src={mascotUrl} alt="DoughDilly robot mascot: Show me the traction" width={816} height={816}
+            className="h-16 w-16 rounded-full border border-primary shadow-glow object-cover" />
+          <div>
+            <div className="font-mono text-xs text-primary tracking-widest">DOUGHDILLY · DEMO MODE · SYNTHETIC DATA</div>
+            <h1 className="text-3xl font-bold">{STARTUP.name} <span className="text-muted-foreground text-lg font-normal">· {STARTUP.stage}</span></h1>
+            <p className="text-sm text-muted-foreground">{STARTUP.tagline} · Referred by {STARTUP.referrer}</p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <div className="panel px-3 py-2 text-right">
