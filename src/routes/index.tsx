@@ -36,6 +36,7 @@ function Index() {
   const [now, setNow] = useState<Date | null>(null);
   const running = step >= 0 && step < RUN_SCRIPT.length;
   const hvs = useRef<HTMLIFrameElement>(null);
+  const [view, setView] = useState<"map" | "holo">("map");
   useEffect(() => {
     if (!running) return;
     const e = RUN_SCRIPT[step]!;
@@ -187,8 +188,16 @@ function Index() {
           <section className="panel p-4">
             <div className="flex justify-between mb-2"><h2 className="font-semibold">Agent flow & tool use</h2>
               <span className="font-mono text-xs text-muted-foreground">{running ? `step ${step + 1}/${RUN_SCRIPT.length}` : step >= RUN_SCRIPT.length ? "complete" : "idle — press Run"}</span></div>
-            <AgentGraph step={running ? step : -1} />
-            <iframe ref={hvs} src="/hvs.html" title="3D agent swarm" className="mt-3 h-[600px] w-full rounded border border-border bg-background" />
+            <div role="tablist" className="mb-2 flex gap-1">
+              {(["map", "holo"] as const).map((t) => (
+                <button key={t} role="tab" aria-selected={view === t} onClick={() => setView(t)}
+                  className={cn("rounded px-3 py-1 text-xs font-mono border", view === t ? "border-primary text-primary" : "border-border text-muted-foreground")}>
+                  {t === "map" ? "Visualization" : "Holographic 3D"}
+                </button>
+              ))}
+            </div>
+            <div className={cn(view !== "map" && "hidden")}><AgentGraph step={running ? step : -1} /></div>
+            <iframe ref={hvs} src="/hvs.html" title="3D agent swarm" className={cn("h-[600px] w-full rounded border border-border bg-background", view !== "holo" && "hidden")} />
             <div className="mt-2 h-36 overflow-y-auto rounded bg-background p-2 font-mono text-[11px] space-y-0.5 flex flex-col-reverse">
               <div>
                 {log.length === 0 && <div className="text-muted-foreground">Event stream will appear here…</div>}
