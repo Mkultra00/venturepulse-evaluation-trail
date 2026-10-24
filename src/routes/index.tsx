@@ -4,7 +4,8 @@ import { AgentGraph } from "@/components/doughdilly/AgentGraph";
 import { Workflow } from "@/components/doughdilly/Workflow";
 import { Spark } from "@/components/doughdilly/Spark";
 import { ProgressUpdate } from "@/components/doughdilly/ProgressUpdate";
-import { RUN_SCRIPT, SNAPSHOTS, STARTUP, type Snapshot } from "@/lib/demo-data";
+import { RUN_SCRIPT } from "@/lib/demo-data";
+import { APPLICANTS, type Snapshot } from "@/lib/applicants";
 import { DIMENSIONS, evidencedCount, grade, merit, sinceLabel, ABSTAIN_MIN } from "@/lib/scoring";
 import { cn } from "@/lib/utils";
 import mascotUrl from "@/assets/dilly-mascot.png";
@@ -23,21 +24,38 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+const DD = APPLICANTS[0]!;
 const LIVE: Snapshot = {
-  ...SNAPSHOTS[2]!, id: "live", label: "Live re-eval", date: "", 
-  scores: { ...SNAPSHOTS[2]!.scores, defense: 4, unit: 3 },
-  kpis: { ...SNAPSHOTS[2]!.kpis, arr: 1.62, nrr: 121, burnMultiple: 1.4, grossMargin: 69, week8: 76 },
+  ...DD.snapshots[2]!, id: "live", label: "Live re-eval", date: "",
+  scores: { ...DD.snapshots[2]!.scores, defense: 4, unit: 3 },
+  kpis: DD.snapshots[2]!.kpis.map((k) =>
+    k.label === "ARR" ? { ...k, val: "$1.62M", num: 1.62 }
+    : k.label === "NRR" ? { ...k, val: "121%", num: 121 }
+    : k.label === "Burn multiple" ? { ...k, val: "1.4x", num: 1.4 }
+    : k.label === "Gross margin" ? { ...k, val: "69%", num: 69 }
+    : k.label === "Week-8 retention" ? { ...k, val: "76%", num: 76 }
+    : k),
   fundFit: 82, v: -3, note: "Live run complete · PRISM passed.",
 };
 
 function Index() {
-  const [snaps, setSnaps] = useState<Snapshot[]>(SNAPSHOTS);
-  const [sel, setSel] = useState(SNAPSHOTS.length - 1);
+  const [appId, setAppId] = useState(DD.id);
+  const app = APPLICANTS.find((a) => a.id === appId) ?? DD;
+  const [snaps, setSnaps] = useState<Snapshot[]>(DD.snapshots);
+  const [sel, setSel] = useState(DD.snapshots.length - 1);
   const [step, setStep] = useState(-1);
   const [now, setNow] = useState<Date | null>(null);
   const running = step >= 0 && step < RUN_SCRIPT.length;
   const hvs = useRef<HTMLIFrameElement>(null);
   const [view, setView] = useState<"map" | "holo">("map");
+
+  const pickApplicant = (id: string) => {
+    const a = APPLICANTS.find((x) => x.id === id) ?? DD;
+    setAppId(a.id);
+    setSnaps(a.snapshots);
+    setSel(a.snapshots.length - 1);
+    setStep(-1);
+  };
   useEffect(() => {
     if (!running) return;
     const e = RUN_SCRIPT[step]!;
@@ -53,7 +71,7 @@ function Index() {
       if (step === RUN_SCRIPT.length - 1) {
         const live = { ...LIVE, date: new Date().toISOString() };
         setSnaps((s) => [...s.filter((x) => x.id !== "live"), live]);
-        setSel(SNAPSHOTS.length);
+        setSel(app.snapshots.length);
         setNow(new Date());
         setStep(RUN_SCRIPT.length);
       } else setStep(step + 1);
@@ -67,16 +85,7 @@ function Index() {
   const last = snaps[snaps.length - 1]!;
   const stage = running ? RUN_SCRIPT[step]!.stage : snap.stageReached;
   const log = useMemo(() => RUN_SCRIPT.slice(0, Math.max(0, step + 1)), [step]);
-  const series = (f: (s: Snapshot) => number | null) => snaps.map(f);
-
-  const kpis: { label: string; val: string; f: (s: Snapshot) => number }[] = [
-    { label: "ARR", val: `$${snap.kpis.arr.toFixed(2)}M`, f: (s) => s.kpis.arr },
-    { label: "NRR", val: snap.kpis.nrr ? `${snap.kpis.nrr}%` : "—", f: (s) => s.kpis.nrr },
-    { label: "Burn multiple", val: snap.kpis.burnMultiple ? `${snap.kpis.burnMultiple}x` : "—", f: (s) => s.kpis.burnMultiple },
-    { label: "Gross margin", val: `${snap.kpis.grossMargin}%`, f: (s) => s.kpis.grossMargin },
-    { label: "Week-8 retention", val: snap.kpis.week8 ? `${snap.kpis.week8}%` : "—", f: (s) => s.kpis.week8 },
-    { label: "FTE", val: `${snap.kpis.fte}`, f: (s) => s.kpis.fte },
-  ];
+  const series = (idx: number) => snaps.map((s) => s.kpis[idx]?.num ?? null);
 
   return (
     <main className="min-h-screen px-4 py-6 md:px-8 max-w-7xl mx-auto space-y-5">
@@ -86,8 +95,15 @@ function Index() {
             className="h-64 w-64 rounded-3xl border-2 border-primary shadow-glow object-contain shrink-0" />
           <div>
             <div className="font-mono text-xs text-primary tracking-widest">DOUGHDILLY · DEMO MODE · SYNTHETIC DATA</div>
-            <h1 className="text-3xl font-bold">{STARTUP.name} <span className="text-muted-foreground text-lg font-normal">· {STARTUP.stage}</span></h1>
-            <p className="text-sm text-muted-foreground">{STARTUP.tagline} · Referred by {STARTUP.referrer}</p>
+            <label className="mt-1 block">
+              <span className="text-[10px] uppercase font-mono text-muted-foreground">Applicant</span>
+              <select value={appId} onChange={(e) => pickApplicant(e.target.value)} disabled={running}
+                className="mt-0.5 block rounded-md border border-border bg-background px-2 py-1.5 text-xl font-bold text-foreground disabled:opacity-60">
+                {APPLICANTS.map((a) => <option key={a.id} value={a.id}>{a.name}{a.live ? " (live demo)" : ""}</option>)}
+              </select>
+            </label>
+            <div className="text-muted-foreground text-sm font-normal">{app.stage}</div>
+            <p className="text-sm text-muted-foreground">{app.tagline} · Referred by {app.referrer}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -95,9 +111,10 @@ function Index() {
             <div className="text-[10px] uppercase text-muted-foreground font-mono">Last evaluated</div>
             <div className="font-mono text-lg text-accent">{now && last.date ? sinceLabel(last.date, now) : "—"}</div>
           </div>
-          <button onClick={() => setStep(0)} disabled={running || !now}
+          <button onClick={() => setStep(0)} disabled={running || !now || !app.live}
+            title={app.live ? undefined : "Live run is scripted for the DoughDilly demo applicant"}
             className="rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground shadow-glow disabled:opacity-60">
-            {!now ? "Loading…" : running ? "Agents running…" : "▶ Run live evaluation"}
+            {!now ? "Loading…" : running ? "Agents running…" : app.live ? "▶ Run live evaluation" : "▶ Live run (demo applicant only)"}
           </button>
         </div>
       </header>
@@ -109,8 +126,8 @@ function Index() {
       </section>
 
       <section className="panel p-4">
-        <h2 className="font-semibold mb-2">Applicant process — <span className="text-primary">{STARTUP.name}</span></h2>
-        <iframe src="/flow.html" title={`${STARTUP.name} applicant process flowchart`} className="h-[920px] w-full rounded border border-border bg-background" />
+        <h2 className="font-semibold mb-2">Applicant process — <span className="text-primary">{app.name}</span></h2>
+        <iframe src="/flow.html" title={`${app.name} applicant process flowchart`} className="h-[920px] w-full rounded border border-border bg-background" />
       </section>
 
       <section className="panel p-4">
@@ -172,24 +189,24 @@ function Index() {
             </div>
           )}
           <p className="text-xs text-muted-foreground">{snap.note}</p>
-          <div className="text-xs text-muted-foreground">Founders: {STARTUP.founders.join(" · ")}</div>
+          <div className="text-xs text-muted-foreground">Founders: {app.founders.join(" · ")}</div>
         </section>
 
         <div className="lg:col-span-3 space-y-5">
           <section className="panel p-4">
             <h2 className="font-semibold mb-3">KPIs over time</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {kpis.map((k) => (
-                <div key={k.label} className="rounded-md bg-muted p-3">
-                  <div className="text-[11px] text-muted-foreground">{k.label}</div>
-                  <div className="text-xl font-bold font-mono">{k.val}</div>
-                  <Spark values={series(k.f)} active={sel} />
+              {snap.kpis.map((kpi, i) => (
+                <div key={kpi.label} className="rounded-md bg-muted p-3">
+                  <div className="text-[11px] text-muted-foreground">{kpi.label}</div>
+                  <div className="text-xl font-bold font-mono">{kpi.val}</div>
+                  <Spark values={series(i)} active={sel} />
                 </div>
               ))}
             </div>
           </section>
-          <ProgressUpdate startup={`${STARTUP.name} (${STARTUP.stage}) — ${STARTUP.tagline}`}
-            kpis={kpis.map((k) => `${k.label}: ${k.val}`).join(", ")} />
+          <ProgressUpdate startup={`${app.name} (${app.stage}) — ${app.tagline}`}
+            kpis={snap.kpis.map((kpi) => `${kpi.label}: ${kpi.val}`).join(", ")} />
           <section className="panel p-4">
             <div className="flex justify-between mb-2"><h2 className="font-semibold">Agent flow & tool use</h2>
               <span className="font-mono text-xs text-muted-foreground">{running ? `step ${step + 1}/${RUN_SCRIPT.length}` : step >= RUN_SCRIPT.length ? "complete" : "idle — press Run"}</span></div>
