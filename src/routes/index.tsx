@@ -54,6 +54,14 @@ function Index() {
 
   useEffect(() => { setNow(new Date()); const t = setInterval(() => setNow(new Date()), 15000); return () => clearInterval(t); }, []);
 
+  // Highlight the applicant's current position on the flowchart
+  useEffect(() => {
+    const post = () => flow.current?.contentWindow?.postMessage({ flow: { node: stage, via: running ? "live run" : snap.label } }, "*");
+    post();
+    const t = setTimeout(post, 1200); // retry once the iframe has loaded
+    return () => clearTimeout(t);
+  }, [stage, running, snap.label]);
+
   useEffect(() => {
     if (!running) return;
     const t = setTimeout(() => {
