@@ -78,10 +78,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Kosa — Founder Evaluation" },
+      { title: "DoughDilly — Founder Evaluation" },
       { name: "description", content: "Agentic startup founder evaluation for VCs." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Kosa — Founder Evaluation" },
+      { property: "og:title", content: "DoughDilly — Founder Evaluation" },
       { property: "og:description", content: "Agentic startup founder evaluation for VCs." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

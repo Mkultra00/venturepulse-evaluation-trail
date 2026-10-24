@@ -10,9 +10,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Kosa — Agentic Founder Evaluation Demo" },
+      { title: "DoughDilly — Agentic Founder Evaluation Demo" },
       { name: "description", content: "Watch AI agents evaluate a startup founder over time with live KPIs, report card, and workflow." },
-      { property: "og:title", content: "Kosa — Agentic Founder Evaluation Demo" },
+      { property: "og:title", content: "DoughDilly — Agentic Founder Evaluation Demo" },
       { property: "og:description", content: "Time-sequenced founder scoring with agent flow visualization." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -72,7 +72,7 @@ function Index() {
     <main className="min-h-screen px-4 py-6 md:px-8 max-w-7xl mx-auto space-y-5">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="font-mono text-xs text-primary tracking-widest">KOSA · DEMO MODE · SYNTHETIC DATA</div>
+          <div className="font-mono text-xs text-primary tracking-widest">DOUGHDILLY · DEMO MODE · SYNTHETIC DATA</div>
           <h1 className="text-3xl font-bold">{STARTUP.name} <span className="text-muted-foreground text-lg font-normal">· {STARTUP.stage}</span></h1>
           <p className="text-sm text-muted-foreground">{STARTUP.tagline} · Referred by {STARTUP.referrer}</p>
         </div>
@@ -186,7 +186,7 @@ function Index() {
           </section>
         </div>
       </div>
-      <footer className="text-center text-[11px] text-muted-foreground">Kosa informs partners; decisions are always made by a human.</footer>
+      <footer className="text-center text-[11px] text-muted-foreground">DoughDilly informs partners; decisions are always made by a human.</footer>
     </main>
   );
 }
