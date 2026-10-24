@@ -166,7 +166,7 @@ export const APPLICANTS: Applicant[] = [
         scores: scores({ team: 8, market: 9, product: 9, traction: 9, unit: 8, defense: 8, terms: 7 }),
         v: 0, fundFit: 84,
         kpis: [k("ARR (deck)", "$2.10M", 2.1), k("Gross margin (deck)", "70%", 70), k("Growth (deck)", "40% MoM", 40), k("Open roles", "11", 11), k("Team page", "14", 14), k("Commit velocity", "—", null)],
-        flags: [], note: "Deck claims taken at face value. Verification not yet run.",
+        flags: [], vc: ["Great pitch — but every number needs verification before we lean in.", "Asked for data room and GitHub access."], note: "Deck claims taken at face value. Verification not yet run.",
       },
       {
         id: "m3", label: "Meeting 3 · verified", date: "2026-10-20T00:00:00Z", stageReached: "decide",
@@ -174,6 +174,7 @@ export const APPLICANTS: Applicant[] = [
         v: vadj(-68.8), fundFit: 84,
         kpis: [k("Durable ARR", "$1.20M", 1.2), k("Gross margin", "~52%", 52), k("Commit velocity", "−81%", -81), k("Open roles", "2", 2), k("Team page", "14", 14), k("Largest customer", "~33%", 33)],
         flags: flags(["RF_PILOT_ARR", "RF_CUSTOMER_CONCENTRATION", "RF_SINGLE_MODEL_PROVIDER", "RF_PRE_INFERENCE_MARGIN", "RF_VELOCITY_DROP", "RF_HIRING_FREEZE", "RF_TITLE_INFLATION", "RF_VALUATION_STRETCH", "RF_DISCOUNTING"]),
+        vc: ["COO admitted $0.9M of the $2.1M is paid pilots — that changes the round math.", "Re-underwrite on $1.2M durable ARR; valuation should reset.", "Velocity and hiring collapse suggest the team is winding down."],
         note: "Do not take to IC as pitched. Re-underwrite on ~$1.2M durable ARR; valuation should reset. 6 of 8 deck claims contradicted.",
       },
     ],
@@ -203,7 +204,7 @@ export const APPLICANTS: Applicant[] = [
         scores: scores({ team: 9, market: 7, product: 8, traction: 7, unit: 8, defense: 7, terms: 7 }),
         v: 0, fundFit: 92,
         kpis: [k("ARR (deck)", "$0.60M", 0.6), k("Customers", "19", 19), k("Pilots", "none", 0), k("Open roles", "3", 3), k("Commit velocity", "—", null), k("NRR", "—", null)],
-        flags: [], note: "Control case: claims expected to hold up.",
+        flags: [], vc: ["No free pilots — paid first month. Good sign.", "Claims look conservative; verify and move."], note: "Control case: claims expected to hold up.",
       },
       {
         id: "m3", label: "Meeting 3 · verified", date: "2026-10-21T00:00:00Z", stageReached: "decide",
@@ -211,6 +212,7 @@ export const APPLICANTS: Applicant[] = [
         v: vadj(91.7), fundFit: 92,
         kpis: [k("ARR (verified)", "$0.66M", 0.66), k("Cohort NRR", "116–121%", 118), k("Commit velocity", "+53%", 53), k("Open roles", "7", 7), k("Case studies", "6", 6), k("Gross margin", "70%", 70)],
         flags: flags(["RF_PRE_INFERENCE_MARGIN"]),
+        vc: ["ARR came in above deck — rare and welcome.", "Move fast; competing term sheet expires next Friday."],
         note: "Take to partner meeting this week. Move fast; competing term sheet expires next Friday.",
       },
     ],
