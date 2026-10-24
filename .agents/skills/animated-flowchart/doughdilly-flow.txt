@@ -1,0 +1,23 @@
+title: DoughDilly — applicant evaluation flow
+legend: What the founder or partner does | What DoughDilly agents do
+apply: DoughDilly submits deck | 📥 | @0,0
+intake: Extract claims from deck | 🧾 | system | @1.45,0
+gather: Gather signals & metrics | 🔎 | system | @2.9,0
+verify: Cross-check claims | 🧪 | system | @2.9,1
+gate: Enough evidence? | ⚖️ | system | @1.45,1
+abstain: Not enough data yet | ⏸️ | system | @0,1
+score: Compute merit score | 📊 | system | @1.45,2
+audit: PRISM bias audit | 🛡️ | system | @2.9,2
+decide: Partner decides | 🤝 | @2.9,3
+update: Founder sends update | ✉️ | @0,3
+apply -> intake
+intake -> gather
+gather -> verify
+verify -> gate
+gate -> score: ≥ 6 of 10 dims
+gate -> abstain: < 6 dims
+abstain -> update: Ask for more
+score -> audit
+audit -> decide
+decide -> update: Monitor
+update -> gather: Re-evaluate
