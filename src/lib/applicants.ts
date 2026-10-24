@@ -221,6 +221,17 @@ export const APPLICANTS: Applicant[] = [
     founders: ["Maya Chen-Ortiz · CEO", "Ben Adeyemi · CTO"],
     referrer: "Halyard Ventures pipeline",
     live: false,
+    script: mkScript({
+      claims: 22,
+      scout: "GitHub API · commits +89% QoQ · 2025 snapshot stale (pre-incorporation)",
+      founder: "OSS takeoff tool, 1.1k stars · 2024 innovation award",
+      metrics: "Data room: $34.2k MRR = $410k ARR, above deck · largest account 7%",
+      memory: "Fund memory: no prior contact",
+      verifyFlags: [],
+      gatePass: true, dims: 7, v: 5,
+      decide: "Scorecard ready · founder undersells; data beats the deck",
+    }),
+    liveNote: "Live run complete · verified polygon outside claimed · PRISM passed.",
     snapshots: [
       {
         id: "m1", label: "Meeting 1 · deck claims", date: "2026-10-02T00:00:00Z", stageReached: "intake",
@@ -247,6 +258,17 @@ export const APPLICANTS: Applicant[] = [
     founders: ["Grace Whitfield · CEO", "Sam Whitaker · CTO"],
     referrer: "Halyard Ventures pipeline",
     live: false,
+    script: mkScript({
+      claims: 28,
+      scout: "GitHub API · velocity −4%, steady · single external model provider",
+      founder: "CTO still part-time at Reverso (competitor)",
+      metrics: "ARR $790k verified · 5 customers / 14 warehouses · GM 70% incl. API",
+      memory: "Fund memory: no prior contact",
+      verifyFlags: ["core IP not assigned to company", "CTO not full time", "single model provider"],
+      gatePass: true, dims: 7, v: 0,
+      decide: "Scorecard ready · hold until IP assignment signed",
+    }),
+    liveNote: "Live run complete · metrics real, legal risk confirmed · PRISM passed.",
     snapshots: [
       {
         id: "m1", label: "Meeting 1 · deck claims", date: "2026-10-05T00:00:00Z", stageReached: "intake",
