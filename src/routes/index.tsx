@@ -81,9 +81,9 @@ function Index() {
             <div className="text-[10px] uppercase text-muted-foreground font-mono">Last evaluated</div>
             <div className="font-mono text-lg text-accent">{now && last.date ? sinceLabel(last.date, now) : "—"}</div>
           </div>
-          <button onClick={() => setStep(0)} disabled={running}
+          <button onClick={() => setStep(0)} disabled={running || !now}
             className="rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground shadow-glow disabled:opacity-60">
-            {running ? "Agents running…" : "▶ Run live evaluation"}
+            {!now ? "Loading…" : running ? "Agents running…" : "▶ Run live evaluation"}
           </button>
         </div>
       </header>
