@@ -355,6 +355,17 @@ export const APPLICANTS: Applicant[] = [
     founders: ["Jordan Pike · CEO", "Elena Sokolova · CTO"],
     referrer: "Halyard Ventures pipeline",
     live: false,
+    script: mkScript({
+      claims: 33,
+      scout: "GitHub API · commits +8% QoQ · two model providers (router)",
+      founder: "CEO press overstated · CTO record is the real signal",
+      metrics: "ARR $930k verified (7% under deck, within tolerance) · largest customer 6%",
+      memory: "Fund memory: no prior contact",
+      verifyFlags: ["post-money 32x durable ARR"],
+      gatePass: true, dims: 7, v: 2,
+      decide: "Scorecard ready · solid business, priced high",
+    }),
+    liveNote: "Live run complete · valuation flag confirmed · PRISM passed.",
     snapshots: [
       {
         id: "m1", label: "Meeting 1 · deck claims", date: "2026-10-03T00:00:00Z", stageReached: "intake",
