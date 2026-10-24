@@ -44,6 +44,17 @@ export function ninooBase(raw: string) {
   return url.replace(/\/(chat\/completions|models)\/?$/, "").replace(/\/$/, "");
 }
 
+const JSON_CONTRACT = `Respond with ONLY a JSON object (no markdown, no prose, no code fences) with exactly these fields:
+{"summary": string, "kpiImpacts": [{"kpi": string, "direction": "up"|"down"|"flat"|"unclear", "rationale": string}], "redFlags": string[], "followUps": string[], "confidence": "low"|"medium"|"high", "note": string}`;
+
+function parseAssessment(raw: string): Assessment {
+  const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+  const start = cleaned.indexOf("{");
+  const end = cleaned.lastIndexOf("}");
+  if (start < 0 || end <= start) throw new Error("no JSON object in model output");
+  return assessmentSchema.parse(JSON.parse(cleaned.slice(start, end + 1)));
+}
+
 export async function assessUpdate(apiKey: string, baseRaw: string, startup: string, kpis: string, update: string) {
   const provider = createOpenAI({ baseURL: ninooBase(baseRaw), apiKey, fetch: runIdFetch() });
   const prompt = `Startup: ${startup}\nLatest KPIs: ${kpis}\n\nFounder progress update:\n${update}`;
@@ -51,13 +62,13 @@ export async function assessUpdate(apiKey: string, baseRaw: string, startup: str
   const started = performance.now();
   const result = streamText({
     model: provider.chat(NINOO_MODEL),
-    system: INSTRUCTIONS,
+    system: `${INSTRUCTIONS}\n\n${JSON_CONTRACT}`,
     messages: [{ role: "user", content: prompt }],
-    output: Output.object({ schema: assessmentSchema }),
     maxRetries: 0,
   });
   try {
-    const assessment = await result.output;
+    const text = await result.text;
+    const assessment = parseAssessment(text);
     const { emitTrace } = await import("./prism.server");
     await emitTrace(prompt, JSON.stringify(assessment), {
       model: NINOO_MODEL,
@@ -67,8 +78,8 @@ export async function assessUpdate(apiKey: string, baseRaw: string, startup: str
     });
     return { ok: true as const, assessment };
   } catch (e) {
-    if (NoObjectGeneratedError.isInstance(e)) {
-      console.error("assessUpdate: unparseable model output:", (e as { text?: string }).text?.slice(0, 2000));
+    if (e instanceof z.ZodError || (e instanceof Error && e.message.includes("JSON"))) {
+      console.error("assessUpdate: unparseable model output:", String(e).slice(0, 2000));
       return { ok: false as const, error: "The AI response could not be read. Please try again." };
     }
     const status = (e as { statusCode?: number }).statusCode;
