@@ -180,7 +180,7 @@ function Index() {
             <div className="flex justify-between mb-2"><h2 className="font-semibold">Agent flow & tool use</h2>
               <span className="font-mono text-xs text-muted-foreground">{running ? `step ${step + 1}/${RUN_SCRIPT.length}` : step >= RUN_SCRIPT.length ? "complete" : "idle — press Run"}</span></div>
             <AgentGraph step={running ? step : -1} />
-            <iframe ref={hvs} src="/hvs.html" title="3D agent swarm" className="mt-3 h-[420px] w-full rounded border border-border bg-background" />
+            <iframe ref={hvs} src="/hvs.html" title="3D agent swarm" className="mt-3 h-[600px] w-full rounded border border-border bg-background" />
             <div className="mt-2 h-36 overflow-y-auto rounded bg-background p-2 font-mono text-[11px] space-y-0.5 flex flex-col-reverse">
               <div>
                 {log.length === 0 && <div className="text-muted-foreground">Event stream will appear here…</div>}
