@@ -1,3 +1,4 @@
+import demoVideo from "@/assets/videos/doughdilly-demo.mp4.asset.json";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AgentGraph } from "@/components/doughdilly/AgentGraph";
@@ -280,6 +281,7 @@ function HowTo() {
         <h2 className="text-2xl font-bold">How to use DoughDilly</h2>
         <p className="text-sm text-muted-foreground">DoughDilly helps investors track a startup over time. AI agents gather and check evidence, score it, and show their work. A human partner always makes the call.</p>
       </div>
+      <video src={demoVideo.url} controls preload="metadata" className="w-full rounded-md bg-muted" />
       <ol className="grid md:grid-cols-2 gap-3">
         {STEPS.map(([t, d], i) => (
           <li key={t} className="rounded-md bg-muted p-4">
