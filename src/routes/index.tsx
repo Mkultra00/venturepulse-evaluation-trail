@@ -196,7 +196,7 @@ function Index() {
             kpis={snap.kpis.map((kpi) => `${kpi.label}: ${kpi.val}`).join(", ")} />
           <section className="panel p-4">
             <div className="flex justify-between mb-2"><h2 className="font-semibold">Agent flow & tool use</h2>
-              <span className="font-mono text-xs text-muted-foreground">{running ? `step ${step + 1}/${RUN_SCRIPT.length}` : step >= RUN_SCRIPT.length ? "complete" : "idle — press Run"}</span></div>
+              <span className="font-mono text-xs text-muted-foreground">{running ? `step ${step + 1}/${script.length}` : step >= script.length ? "complete" : "idle — press Run"}</span></div>
             <div role="tablist" className="mb-2 flex gap-1">
               {(["map", "holo"] as const).map((t) => (
                 <button key={t} role="tab" aria-selected={view === t} onClick={() => setView(t)}
