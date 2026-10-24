@@ -193,12 +193,17 @@ select{width:100%;background:var(--panel-strong);border:1px solid var(--line-str
   body[data-tab="telemetry"] #left, body[data-tab="log"] #left, body[data-tab="inspect"] #right{display:flex}
   body[data-tab="telemetry"] section[data-tab="telemetry"], body[data-tab="inspect"] section[data-tab="inspect"]{display:block}
   body[data-tab="log"] section[data-tab="log"]{display:flex}
-  #dock{left:0;right:0;bottom:calc(50px + env(safe-area-inset-bottom,0px));padding:0 8px 8px;display:none}
-  body[data-tab="controls"] #dock{display:flex}
-  #dock>section{max-height:52vh}
-  .dockrow{flex-direction:column;gap:10px}
-  .dockbtns{flex:none;width:100%}
-  .ctlgrid{grid-template-columns:1fr 1fr}
+  #dock{left:0;right:0;bottom:calc(50px + env(safe-area-inset-bottom,0px));padding:0 6px 6px;display:flex}
+  #dock>section{padding:8px 10px;max-height:none}
+  #dock h2{display:none}
+  .dockrow{flex-direction:column;gap:6px}
+  .dockbtns{flex:none;width:100%;display:flex;gap:6px;align-items:center}
+  .dockbtns .btnrow{margin:0;flex:1 1 auto}
+  .dockbtns .tog{margin:0;flex:0 0 auto;font-size:10px}
+  .ctlgrid{grid-template-columns:repeat(4,1fr);gap:0 10px}
+  .ctlgrid .ctl{margin:3px 0}
+  .ctlgrid .ctl label{font-size:9px}
+  .col{bottom:calc(170px + 50px + env(safe-area-inset-bottom,0px))}
   #tabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:6;gap:4px;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));background:var(--panel-strong);border-top:1px solid var(--line)}
   #tabs button{flex:1;background:transparent;border:1px solid transparent;padding:8px 2px;font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:.05em;color:var(--dim);cursor:pointer}
   #tabs button.on{color:var(--white);border-color:var(--line-strong);background:rgba(62,232,255,.1)}
