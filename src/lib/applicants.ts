@@ -1,5 +1,5 @@
 import type { DimScores } from "./scoring";
-import type { StageId } from "./demo-data";
+import type { StageId, Step } from "./demo-data";
 
 export type Kpi = { label: string; val: string; num: number | null };
 
@@ -23,10 +23,55 @@ export type Applicant = {
   stage: string;
   founders: string[];
   referrer: string;
-  /** true = synthetic demo applicant that supports the scripted live run */
+  /** true = synthetic demo applicant */
   live: boolean;
   snapshots: Snapshot[];
+  /** agent run replayed when the user presses "Run live evaluation" */
+  script: Step[];
+  /** note attached to the appended "Live re-eval" snapshot */
+  liveNote: string;
 };
+
+/** Build a tailored agent run for a dataset applicant. */
+function mkScript(o: {
+  claims: number;
+  scout: string;
+  founder: string;
+  metrics: string;
+  memory: string;
+  verifyFlags: string[];
+  gatePass: boolean;
+  dims: number;
+  v: number;
+  decide: string;
+}): Step[] {
+  const steps: Step[] = [
+    { stage: "intake", from: "DILLY", to: "INTAKE", kind: "cmd", note: "Plan run · dispatch INTAKE" },
+    { stage: "intake", from: "INTAKE", to: null, tool: "PDF", kind: "tool", note: `PDF parser → ${o.claims} claims extracted` },
+    { stage: "gather", from: "INTAKE", to: "SCOUT", kind: "cmd", note: "Fan-out: SCOUT, FOUNDER, METRICS, MEMORY" },
+    { stage: "gather", from: "SCOUT", to: null, tool: "GITHUB", kind: "tool", note: o.scout },
+    { stage: "gather", from: "INTAKE", to: "FOUNDER", kind: "cmd", note: "Spawn 2 founder subagents" },
+    { stage: "gather", from: "FOUNDER", to: null, tool: "LINKEDIN", kind: "tool", note: o.founder },
+    { stage: "gather", from: "INTAKE", to: "METRICS", kind: "cmd", note: "Normalize ARR, NRR, burn multiple" },
+    { stage: "gather", from: "METRICS", to: null, tool: "BENCH", kind: "tool", note: o.metrics },
+    { stage: "gather", from: "INTAKE", to: "MEMORY", kind: "mem", note: o.memory },
+    { stage: "verify", from: "SCOUT", to: "VERIFIER", kind: "cmd", note: "Cross-check claims vs signals" },
+    ...o.verifyFlags.map((f): Step => ({ stage: "verify", from: "VERIFIER", to: null, tool: "LLM", kind: "err", note: `Red flag: ${f}` })),
+    { stage: "verify", from: "METRICS", to: "RUBRIC", kind: "cmd", note: "Score 19 rubric criteria" },
+    o.gatePass
+      ? { stage: "gate", from: "RUBRIC", to: "SCORER", kind: "ok", note: `Gate passed · ${o.dims} of 10 dims evidenced` }
+      : { stage: "gate", from: "RUBRIC", to: "DILLY", kind: "err", note: `Abstain · only ${o.dims} of 10 dims evidenced` },
+  ];
+  if (o.gatePass) {
+    steps.push(
+      { stage: "score", from: "VERIFIER", to: "SCORER", kind: "cmd", note: `Merit computed in code · V = ${o.v}` },
+      { stage: "audit", from: "SCORER", to: "AUDITOR", kind: "cmd", note: "Send run to PRISM" },
+      { stage: "audit", from: "AUDITOR", to: null, tool: "PRISM", kind: "ok", note: "PRISM: bias ✓ consistency ✓ explainability ✓" },
+    );
+  }
+  steps.push({ stage: "decide", from: o.gatePass ? "AUDITOR" : "DILLY", to: "DILLY", kind: "ok", note: o.decide });
+  return steps;
+}
 
 const days = (n: number) => new Date(Date.now() - n * 86400000).toISOString();
 /** dataset scores are 0–10; the report card uses 0–5 */
