@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Flowchart animator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#EAF2F8; --card:#FFFFFF; --ink:#16191D; --muted:#56616D; --line:#CFDDE8;
+  --blue:#3D9AD6; --blue-wash:#DDEFFB; --orange:#EE992C; --orange-wash:#FDEDD6; --halo:#D96F00;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --page:#0E1922; --card:#162532; --ink:#EDF2F6; --muted:#9BABB9; --line:#294052;
+    --blue:#5BB1E9; --blue-wash:#1B3A53; --orange:#F3A84A; --orange-wash:#45321A; --halo:#FF9A2E;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --page:#0E1922; --card:#162532; --ink:#EDF2F6; --muted:#9BABB9; --line:#294052;
+  --blue:#5BB1E9; --blue-wash:#1B3A53; --orange:#F3A84A; --orange-wash:#45321A; --halo:#FF9A2E;
+  color-scheme: dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);
+  font-family:"Archivo","Helvetica Neue",Arial,sans-serif;font-size:17px;line-height:1.5}
+main{max-width:820px;margin:0 auto;padding:28px 18px 64px}
+h1{font-weight:900;font-stretch:78%;text-transform:uppercase;font-size:clamp(34px,8vw,64px);
+  line-height:.92;letter-spacing:-.01em;margin:0 0 22px;text-wrap:balance}
+h2{font-weight:800;font-stretch:90%;font-size:26px;line-height:1.15;margin:0 0 6px}
+p{margin:0 0 12px;max-width:62ch}
+button{font:inherit;font-size:15px;font-weight:700;color:var(--ink);background:var(--card);
+  border:2px solid var(--line);border-radius:10px;padding:9px 14px;cursor:pointer;min-height:42px}
+button:hover{border-color:var(--blue)}
+button.primary{background:var(--ink);color:var(--page);border-color:var(--ink)}
+button:disabled{opacity:.5;cursor:default}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+
+.stage{background:var(--card);border-radius:28px;padding:14px;overflow:hidden}
+.stage.zoomed{overflow-x:auto}
+.stage.zoomed svg{min-width:880px}
+svg#chart{display:block;width:100%;height:auto}
+
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+.now{display:flex;align-items:center;gap:14px;margin:16px 0 6px;min-height:64px}
+.now-icon{font-size:40px;line-height:1;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.now-step{font-size:14px;color:var(--muted);font-weight:600}
+.now-label{font-size:22px;font-weight:800;font-stretch:88%;line-height:1.15}
+.legend{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:14px;color:var(--muted);margin-bottom:8px}
+.legend span::before{content:"";display:inline-block;width:18px;height:12px;border-radius:5px;
+  border:3px solid var(--blue);margin-right:7px;vertical-align:-1px}
+.legend span.sys::before{border-color:var(--orange)}
+
+.make{margin-top:44px;border-top:3px solid var(--line);padding-top:28px}
+label{display:block;font-weight:700;font-size:15px;margin:16px 0 6px}
+textarea{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--card);
+  border:2px solid var(--line);border-radius:12px;padding:12px;resize:vertical}
+textarea:focus{border-color:var(--blue);outline:none}
+#dsl{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;line-height:1.55}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.msg{font-size:15px;color:var(--muted);margin-top:10px;min-height:1px}
+.msg.err{color:var(--orange)}
+.examples{margin-top:22px;font-size:15px;color:var(--muted)}
+.examples .row{margin-top:8px}
+.examples button[aria-pressed="true"]{border-color:var(--orange)}
+details{margin-top:26px;background:var(--card);border-radius:16px;padding:6px 16px}
+summary{cursor:pointer;font-weight:800;padding:10px 0;font-size:17px}
+details[open]{padding-bottom:16px}
+.help{font-size:14px;color:var(--muted);margin-top:14px}
+.help code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:var(--ink);
+  background:var(--page);padding:1px 5px;border-radius:5px}
+.help ul{padding-left:18px;margin:6px 0}
+.export{margin-top:24px}
+
+/* diagram */
+.nrect{fill:var(--card);stroke-width:4;transition:fill .35s}
+.nrect.step{stroke:var(--blue)}
+.nrect.system{stroke:var(--orange)}
+.node.seen .nrect.step{fill:var(--blue-wash)}
+.node.seen .nrect.system{fill:var(--orange-wash)}
+.node.lit .nrect{stroke-width:6}
+.node.lit .nbody{animation:pulse .65s ease-out}
+.nhalo{fill:var(--halo);opacity:0;transition:opacity .5s ease}
+.node-h.lit .nhalo{opacity:.95;animation:breathe 2.2s ease-in-out .5s infinite}
+@keyframes breathe{50%{opacity:.6}}
+.nlabel{font-family:"Archivo","Arial Narrow",Arial,sans-serif;font-weight:800;font-stretch:86%;
+  font-size:21px;fill:var(--ink);letter-spacing:-.005em}
+.nicon{font-size:36px;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.pipe-out{fill:none;stroke:var(--blue);stroke-width:26;stroke-linecap:butt;transition:stroke .3s}
+.pipe-in{fill:none;stroke:var(--card);stroke-width:16;stroke-linecap:butt}
+.edge.hot .pipe-out{stroke:var(--orange)}
+.tri-stop-a{stop-color:var(--blue);stop-opacity:.12}.tri-stop-b{stop-color:var(--blue);stop-opacity:.95}
+.pg-a{stop-color:var(--blue);stop-opacity:0}.pg-b{stop-color:var(--blue);stop-opacity:.5}.pg-c{stop-color:var(--blue);stop-opacity:.1}
+.pgh-a{stop-color:var(--orange);stop-opacity:0}.pgh-b{stop-color:var(--orange);stop-opacity:.7}.pgh-c{stop-color:var(--orange);stop-opacity:.15}
+.tri-hot-a{stop-color:var(--orange);stop-opacity:.2}.tri-hot-b{stop-color:var(--orange);stop-opacity:1}
+.ah{fill:var(--blue)} .ah-hot{fill:var(--orange)}
+.elabel rect{fill:var(--card);stroke:var(--line);stroke-width:2}
+.elabel text{font-family:"Archivo",Arial,sans-serif;font-size:16px;font-weight:700;fill:var(--muted)}
+.halo{fill:var(--orange);opacity:.28}
+
+.node{opacity:0;transition:opacity .4s}
+.nbody{transform:scale(.7);transform-box:fill-box;transform-origin:center;
+  transition:transform .55s cubic-bezier(.3,1.6,.5,1)}
+.edge{opacity:0;transition:opacity .3s}
+.edge .pipe-out,.edge .pipe-in{transition:stroke-dashoffset .6s ease-out, stroke .3s}
+.ready .node,.ready .edge{opacity:1}
+.ready .nbody{transform:none}
+@keyframes pulse{0%{transform:scale(1)}35%{transform:scale(1.09)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){
+  .node,.edge,.nbody,.edge .pipe-out,.edge .pipe-in{transition:none!important}
+  .node-h.lit .nhalo{animation:none}
+  .node.lit .nbody{animation:none}
+}
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">How Instagram Reels algorithm works</h1>
+
+  <div class="stage" id="stage">
+    <svg id="chart" role="img" aria-labelledby="title"></svg>
+  </div>
+
+  <div class="now" aria-live="polite">
+    <span class="now-icon" id="nowIcon"></span>
+    <div><div class="now-step" id="nowStep">Getting ready</div><div class="now-label" id="nowLabel">&nbsp;</div></div>
+  </div>
+  <div class="legend"><span id="legStep">Something a person does</span><span class="sys" id="legSys">Something the system does</span></div>
+
+  <div class="controls">
+    <button id="play">Pause</button>
+    <button id="step" disabled>Next step</button>
+    <button id="restart">Restart</button>
+    <button id="speed">Speed 1×</button>
+    <button id="zoom">Zoom in</button>
+  </div>
+
+  <section class="make">
+    <h2>Turn any process into a flowchart</h2>
+    <p>Describe what happens and where things can go different ways. The chart plays the process step by step and takes a different branch on each run.</p>
+    <label for="desc">Your process</label>
+    <textarea id="desc" rows="4" placeholder="For example: how a restaurant handles a delivery order, from checkout to the doorstep, including what happens when the driver can’t find the address"></textarea>
+    <div class="row">
+      <button class="primary" id="gen">Generate flowchart</button>
+      <button id="stopgen" hidden>Stop</button>
+    </div>
+    <p class="msg" id="genmsg"></p>
+
+    <div class="examples">Or load an example:
+      <div class="row" id="presets">
+        <button data-p="reels" aria-pressed="true">Instagram Reels</button>
+        <button data-p="job" aria-pressed="false">Job application</button>
+        <button data-p="pr" aria-pressed="false">Pull request</button>
+      </div>
+    </div>
+
+    <details id="hand">
+      <summary>Edit the steps by hand</summary>
+      <textarea id="dsl" rows="16" spellcheck="false" aria-label="Flowchart steps"></textarea>
+      <div class="row"><button class="primary" id="apply">Update chart</button></div>
+      <p class="msg" id="errs"></p>
+      <div class="help">
+        One line per step or link:
+        <ul>
+          <li><code>title: How it works</code> sets the heading.</li>
+          <li><code>id: Label | 📱</code> adds a step with an emoji. Add <code>| system</code> for orange steps done by an app, machine or organization.</li>
+          <li><code>a -> b</code> draws an arrow; <code>a -> b: Yes</code> labels it.</li>
+          <li>The first step is where the animation starts. Optional <code>| @col,row</code> pins a step to a grid spot; pin every step or none.</li>
+        </ul>
+      </div>
+    </details>
+
+    <div class="export"><button id="save">Save as SVG</button> <span class="msg" id="savemsg"></span></div>
+  </section>
+</main>
+
+<script>
+const INITIAL_FLOW = /*__FLOW__*/null;
+const SHOW_BUILDER = /*__BUILDER__*/true;
+const PRESETS = {
+reels:`title: How Instagram Reels algorithm works
+reel: Post a reel | 📱 | @0,0
+show100: Show it to 100 people | 📸 | system | @1.5,0
+watch1: They watch till end | 📺 | @1,1
+skip1: They don’t watch till end | 🙁 | @2,1
+more: Show it to more people | 📸 | system | @1,2
+reduce: Reduces your reach | 📉 | system | @2,2
+watch2: They watch till end | 📺 | @1,3
+skip2: They don’t watch till end | 🙁 | @2,3
+explore: Put you on Explore page | 🔥 | system | @0,2
+grow: You grow | 👏 | @0,1
+reel -> show100
+show100 -> watch1
+show100 -> skip1
+watch1 -> more
+skip1 -> reduce
+more -> watch2
+more -> skip2
+skip2 -> reduce
+watch2 -> explore
+explore -> grow
+grow -> reel`,
+job:`title: How a job application moves
+apply: You apply | 📨
+ats: Screening software scans it | 🤖 | system
+match: Keywords match | ✅
+miss: Keywords miss | 🙁
+recruiter: Recruiter reviews | 👀 | system
+interview: You interview | 🎤
+offer: You get an offer | 🎉
+reject: Rejection email | 📭 | system
+apply -> ats
+ats -> match
+ats -> miss
+match -> recruiter
+miss -> reject
+recruiter -> interview: Good fit
+recruiter -> reject: Not now
+interview -> offer
+interview -> reject
+reject -> apply: Try again`,
+pr:`title: How a pull request gets merged
+open: Open a pull request | 🧑‍💻
+ci: Tests run | ⚙️ | system
+pass: Tests pass | ✅
+fail: Tests fail | ❌
+review: Teammate reviews | 👀
+approve: Approved | 👍
+changes: Changes requested | ✏️
+merge: Merged to main | 🚀 | system
+open -> ci
+ci -> pass
+ci -> fail
+fail -> open: Fix and push
+pass -> review
+review -> approve
+review -> changes
+changes -> open
+approve -> merge`
+};
+
+const NS='http://www.w3.org/2000/svg';
+const $=s=>document.querySelector(s);
+const svg=$('#chart');
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);if(attrs)for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+
+/* ---------- parsing ---------- */
+function parse(src){
+  const g={title:'',nodes:new Map(),edges:[],errors:[]};
+  const ensure=id=>{if(!g.nodes.has(id))g.nodes.set(id,{id,label:id.replace(/[-_]+/g,' '),kind:'step',icon:'',pos:null});return g.nodes.get(id)};
+  src.replace(/```[a-z]*/gi,'').split('\n').forEach((raw,i)=>{
+    const line=raw.trim();let m;
+    if(!line||line.startsWith('#')||line.startsWith('//'))return;
+    if((m=line.match(/^title\s*:\s*(.+)$/i))){g.title=m[1].trim();return}
+    if((m=line.match(/^legend\s*:\s*(.+)$/i))){g.legend=m[1].split('|').map(x=>x.trim());return}
+    if((m=line.match(/^([\w-]+)\s*->\s*([\w-]+)\s*(?::\s*(.*))?$/))){ensure(m[1]);ensure(m[2]);g.edges.push({from:m[1],to:m[2],label:(m[3]||'').trim()});return}
+    if((m=line.match(/^([\w-]+)\s*:\s*(.+)$/))){
+      const parts=m[2].split('|').map(s=>s.trim()).filter(Boolean);
+      const n=ensure(m[1]);n.label=parts[0]||m[1];
+      for(const p of parts.slice(1)){let pm;
+        if((pm=p.match(/^@\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)$/)))n.pos=[+pm[1],+pm[2]];
+        else if(/^system$/i.test(p))n.kind='system';
+        else if(/^(step|person)$/i.test(p))n.kind='step';
+        else n.icon=p;}
+      return}
+    g.errors.push(`Line ${i+1} isn’t a step, a link or a title: “${line.slice(0,48)}”`);
+  });
+  if(!g.nodes.size)g.errors.unshift('Add at least one step, like “start: Begin | 🚀”.');
+  return g;
+}
+
+/* ---------- layout ---------- */
+const W=236, PX=292, LH=25, ARROW=36, TRI_GAP=32;
+function wrap(text,maxW,meas){
+  const words=text.toUpperCase().split(/\s+/);const lines=[];let cur='';
+  for(const w of words){const t=cur?cur+' '+w:w;meas.textContent=t;
+    if(meas.getComputedTextLength()>maxW&&cur){lines.push(cur);cur=w}else cur=t}
+  if(cur)lines.push(cur);return lines;
+}
+function layout(g){
+  const nodes=[...g.nodes.values()];
+  const out=new Map(nodes.map(n=>[n.id,[]]));
+  g.edges.forEach(e=>out.get(e.from).push(e));
+  g.out=out;
+  const maxH=Math.max(...nodes.map(n=>n.h));
+  const PY=Math.max(200,maxH+100);
+  if(nodes.every(n=>n.pos)){
+    nodes.forEach(n=>{n.x=n.pos[0]*PX;n.y=n.pos[1]*PY});
+    // a straight pipe that would cut through another step gets routed around the outside
+    const hit=(a,b)=>nodes.some(n=>{if(n===a||n===b)return false;
+      for(let i=1;i<24;i++){const t=i/24,x=a.x+(b.x-a.x)*t,y=a.y+(b.y-a.y)*t;
+        if(Math.abs(x-n.x)<n.w/2+10&&Math.abs(y-n.y)<n.h/2+10)return true}return false});
+    g.edges.forEach(e=>{const a=g.nodes.get(e.from),b=g.nodes.get(e.to);
+      e.curve=g.edges.some(o=>o.from===e.to&&o.to===e.from)?50:0;e.side=!e.curve&&hit(a,b)});
+    return;
+  }
+  const state=new Map(),order=[],back=new Set();
+  const dfs=id=>{state.set(id,1);for(const e of out.get(id)){const s=state.get(e.to);if(s===1)back.add(e);else if(!s)dfs(e.to)}state.set(id,2);order.push(id)};
+  nodes.forEach(n=>{if(!state.get(n.id))dfs(n.id)});
+  const layer=new Map(nodes.map(n=>[n.id,0]));
+  order.reverse().forEach(id=>{for(const e of out.get(id))if(!back.has(e))layer.set(e.to,Math.max(layer.get(e.to),layer.get(id)+1))});
+  const L=[];nodes.forEach(n=>{const l=layer.get(n.id);(L[l]=L[l]||[]).push(n)});
+  const pi=new Map();
+  const bary=n=>{const ps=g.edges.filter(e=>e.to===n.id&&!back.has(e)&&pi.has(e.from)).map(e=>pi.get(e.from));return ps.length?ps.reduce((a,b)=>a+b)/ps.length:0};
+  L.forEach((row,li)=>{if(!row)return;if(li>0)row.sort((a,b)=>bary(a)-bary(b));
+    row.forEach((n,i)=>{pi.set(n.id,i-(row.length-1)/2);n.x=pi.get(n.id)*PX;n.y=li*PY})});
+  g.edges.forEach(e=>{const span=layer.get(e.to)-layer.get(e.from);
+    e.curve=back.has(e)?120:(span>1?85:0);e.back=back.has(e);
+    const a=g.nodes.get(e.from),b=g.nodes.get(e.to);e.side=!e.back&&span>1&&Math.abs(a.x-b.x)<PX/2});
+}
+function clip(n,dx,dy,gap){
+  const hw=n.w/2+gap,hh=n.h/2+gap;const t=Math.min(dx?hw/Math.abs(dx):1e9,dy?hh/Math.abs(dy):1e9);
+  return [n.x+dx*t,n.y+dy*t];
+}
+function edgePath(e,a,b,ext){
+  if(e.back||e.side){
+    const side=((a.x+b.x)/2)>=(ext[0]+ext[1])/2?1:-1;const off=96+(e.lane||0)*48;const out=side>0?ext[1]+off:ext[0]-off;
+    const sx=a.x+side*(a.w/2+4),ex=b.x+side*(b.w/2+8);
+    const ay=a.y+20,by=b.y-20;
+    return `M${sx},${ay} C${out},${ay} ${out},${by} ${ex},${by}`;
+  }
+  let dx=b.x-a.x,dy=b.y-a.y;const len=Math.hypot(dx,dy)||1;
+  if(!e.curve){const ux=dx/len,uy=dy/len;const p=clip(a,ux,uy,4),q=clip(b,-ux,-uy,6);return `M${p[0]},${p[1]} L${q[0]},${q[1]}`}
+  let px=-dy/len,py=dx/len;const mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
+  const want=Math.sign(mx)||1;
+  if(Math.abs(px)>=.2&&px*want<0){px=-px;py=-py}
+  if(e.back&&Math.abs(dx)<1){px=want;py=0}
+  const cx=mx+px*e.curve*1.6,cy=my+py*e.curve*1.6;
+  const d1=[cx-a.x,cy-a.y],d2=[cx-b.x,cy-b.y];const l1=Math.hypot(...d1),l2=Math.hypot(...d2);
+  const p=clip(a,d1[0]/l1,d1[1]/l1,4),q=clip(b,d2[0]/l2,d2[1]/l2,6);
+  return `M${p[0]},${p[1]} Q${cx},${cy} ${q[0]},${q[1]}`;
+}
+
+/* ---------- render ---------- */
+let G=null;
+function render(g){
+  stopLoop();G=g;
+  $('#legStep').textContent=(g.legend&&g.legend[0])||'Something a person does';
+  $('#legSys').textContent=(g.legend&&g.legend[1])||'Something the system does';
+  $('#title').textContent=g.title||'Untitled process';document.title=g.title||'Flowchart';
+  svg.innerHTML='';svg.classList.remove('ready');
+  const defs=el('defs',null,svg);
+  for(const [id,cls] of [['ah','ah'],['ah-hot','ah-hot']]){
+    const m=el('marker',{id,viewBox:'0 0 10 10',refX:'10',refY:'5',markerWidth:ARROW,markerHeight:'46',markerUnits:'userSpaceOnUse',preserveAspectRatio:'none',orient:'auto'},defs);
+    el('path',{d:'M0,0 L10,5 L0,10 z',class:cls},m);
+  }
+  for(const [id,a,b] of [['tri','tri-stop-a','tri-stop-b'],['tri-hot','tri-hot-a','tri-hot-b']]){
+    const lg=el('linearGradient',{id,x1:'0',y1:'0',x2:'1',y2:'0'},defs);
+    el('stop',{offset:'0',class:a},lg);el('stop',{offset:'1',class:b},lg);
+  }
+  for(const [id,c] of [['pg','pg'],['pg-hot','pgh']]){
+    const lg=el('linearGradient',{id,x1:'0',y1:'0',x2:'1',y2:'0'},defs);
+    el('stop',{offset:'0',class:c+'-a'},lg);el('stop',{offset:'.82',class:c+'-b'},lg);el('stop',{offset:'1',class:c+'-c'},lg);
+  }
+  const f=el('filter',{id:'soft',x:'-40%',y:'-40%',width:'180%',height:'180%'},defs);
+  el('feGaussianBlur',{stdDeviation:'11'},f);
+  const gH=el('g',null,svg),gE=el('g',null,svg),gN=el('g',null,svg),gL=el('g',null,svg);
+  const meas=el('text',{class:'nlabel',x:-9999,y:-9999},svg);
+  const nodes=[...g.nodes.values()];
+  nodes.forEach(n=>{const textW=n.icon?W-90:W-36;n.lines=wrap(n.label,textW,meas);n.w=W;n.h=Math.max(104,n.lines.length*LH+40)});
+  meas.remove();
+  layout(g);
+  g.start=nodes[0];
+
+  // order of appearance: breadth-first from start
+  const seen=new Set([g.start.id]),bfs=[g.start];
+  for(let i=0;i<bfs.length;i++)for(const e of g.out.get(bfs[i].id))if(!seen.has(e.to)){seen.add(e.to);bfs.push(g.nodes.get(e.to))}
+  nodes.forEach(n=>{if(!seen.has(n.id))bfs.push(n)});
+  const delay=new Map(bfs.map((n,i)=>[n.id,reduced?0:120+i*110]));
+
+  let minX=1e9,minY=1e9,maxX=-1e9,maxY=-1e9;
+  const grow=(x1,y1,x2,y2)=>{minX=Math.min(minX,x1);minY=Math.min(minY,y1);maxX=Math.max(maxX,x2);maxY=Math.max(maxY,y2)};
+
+  nodes.forEach(n=>{
+    const ng=el('g',{class:'node',transform:`translate(${n.x},${n.y})`},gN);
+    const hg=el('g',{class:'node-h',transform:`translate(${n.x},${n.y})`},gH);
+    el('rect',{class:'nhalo',x:-n.w/2-16,y:-n.h/2-16,width:n.w+32,height:n.h+32,rx:42,filter:'url(#soft)'},hg);
+    const body=el('g',{class:'nbody'},ng);
+    el('rect',{class:'nrect '+n.kind,x:-n.w/2,y:-n.h/2,width:n.w,height:n.h,rx:28},body);
+    const tx=n.icon?-n.w/2+80:0;
+    if(n.icon){const ic=el('text',{class:'nicon',x:-n.w/2+44,y:2,'text-anchor':'middle','dominant-baseline':'central'},body);ic.textContent=n.icon}
+    const t=el('text',{class:'nlabel',x:tx,'text-anchor':n.icon?'start':'middle'},body);
+    n.lines.forEach((ln,i)=>{const s=el('tspan',{x:tx,y:(i-(n.lines.length-1)/2)*LH,'dominant-baseline':'central'},t);s.textContent=ln});
+    ng.style.transitionDelay=delay.get(n.id)+'ms';body.style.transitionDelay=delay.get(n.id)+'ms';
+    n.el=ng;n.hal=hg;grow(n.x-n.w/2,n.y-n.h/2,n.x+n.w/2,n.y+n.h/2);
+  });
+  // routed-around edges get their own lane so they never overlap
+  const ext=[Math.min(...nodes.map(n=>n.x-n.w/2)),Math.max(...nodes.map(n=>n.x+n.w/2))],midX=(ext[0]+ext[1])/2;
+  const routed=g.edges.filter(e=>e.back||e.side).map(e=>{const a=g.nodes.get(e.from),b=g.nodes.get(e.to);
+    return {e,side:((a.x+b.x)/2)>=midX?1:-1,span:Math.abs(a.y-b.y)}}).sort((x,y)=>x.span-y.span);
+  const lanes={'1':0,'-1':0};routed.forEach(r=>{r.e.lane=lanes[r.side]++});
+  // draw outer lanes first so inner-lane arrowheads stay on top where pipes cross
+  const lane=e=>(e.back||e.side)?-1-(e.lane||0):0;
+  [...g.edges].sort((x,y)=>lane(x)-lane(y)).forEach(e=>{
+    const a=g.nodes.get(e.from),b=g.nodes.get(e.to);
+    const eg=el('g',{class:'edge'},gE);
+    const dd=edgePath(e,a,b,ext);
+    const p=el('path',{class:'pipe-out',d:dd,'marker-end':'url(#ah)'},eg);
+    const len=p.getTotalLength();p.setAttribute('stroke-dasharray',`${Math.max(0,len-ARROW+1)} ${len+50}`);p.setAttribute('data-len',Math.max(0,len-ARROW+1));e.el=eg;e.path=p;e.len=len;
+    const innerLen=Math.max(0,len-ARROW+1);
+    const pin=el('path',{class:'pipe-in',d:dd,'stroke-dasharray':`${innerLen} ${len+50}`,'data-len':innerLen},eg);
+    const gg=el('g',{class:'tris'},eg),tg=el('g',{class:'tris'},eg);e.tris=[];e.glows=[];
+    const nTri=Math.max(1,Math.ceil(len/TRI_GAP)+1);
+    for(let i=0;i<nTri;i++){
+      e.glows.push(el('rect',{x:-TRI_GAP+8,y:-7.5,width:TRI_GAP,height:15,fill:'url(#pg)',opacity:0},gg));
+      e.tris.push(el('path',{d:'M-8,-5.5 L8,0 L-8,5.5 Z',fill:'url(#tri)',opacity:0},tg));
+    }
+    if(!reduced){p.style.strokeDasharray=`${innerLen} ${len+50}`;p.style.strokeDashoffset=len;
+      pin.style.strokeDasharray=`${innerLen} ${len+50}`;pin.style.strokeDashoffset=len}
+    e.pin=pin;
+    const d=delay.get(e.from)+260;eg.style.transitionDelay=d+'ms';p.style.transitionDelay=d+'ms, 0ms';pin.style.transitionDelay=d+'ms, 0ms';
+    const bb=p.getBBox();grow(bb.x,bb.y,bb.x+bb.width,bb.y+bb.height);
+    if(e.label){
+      const mid=p.getPointAtLength(len/2);const lg=el('g',{class:'elabel edge'},gL);lg.style.transitionDelay=d+'ms';
+      const r=el('rect',{rx:12},lg);const tt=el('text',{x:mid.x,y:mid.y,'text-anchor':'middle','dominant-baseline':'central'},lg);
+      tt.textContent=e.label;const tb=tt.getBBox();
+      r.setAttribute('x',tb.x-10);r.setAttribute('y',tb.y-5);r.setAttribute('width',tb.width+20);r.setAttribute('height',tb.height+10);
+      grow(tb.x-12,tb.y-7,tb.x+tb.width+12,tb.y+tb.height+7);
+    }
+  });
+  const pad=24;svg.setAttribute('viewBox',`${minX-pad} ${minY-pad} ${maxX-minX+pad*2} ${maxY-minY+pad*2}`);
+  G.bounds=[minX-pad,minY-pad,maxX-minX+pad*2,maxY-minY+pad*2];
+
+  setNow('','Getting ready','');
+  svg.getBoundingClientRect();
+  requestAnimationFrame(()=>{svg.classList.add('ready');
+    g.edges.forEach(e=>{e.path.style.strokeDashoffset=0;e.pin.style.strokeDashoffset=0});});
+  const intro=reduced?200:Math.max(...delay.values())+900;
+  startLoop(intro);
+}
+
+/* ---------- playback ---------- */
+let loopId=0,paused=false,stepping=false,speed=1,stepNo=0;
+const CANCEL={};
+const frame=()=>new Promise(r=>requestAnimationFrame(r));
+async function wait(ms,id){let t=0,last=performance.now();
+  while(t<ms){await frame();if(id!==loopId)throw CANCEL;const now=performance.now();
+    if(stepping)t=ms;else if(!paused)t+=(now-last)*speed;last=now}}
+async function travel(e,id){
+  const dur=reduced?0:Math.max(1000,e.len*4.2);let t=0,last=performance.now();
+  G.active={e,p:0};
+  try{
+    while(t<dur){await frame();if(id!==loopId)throw CANCEL;const now=performance.now();
+      if(!paused||stepping)t+=(now-last)*(stepping?Math.max(speed,1.5):speed);last=now;
+      const k=Math.min(1,t/dur);G.active.p=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2}
+  }finally{G.active=null}
+}
+/* flow triangles: always drifting through every pipe; the active pipe fills
+   from its source up to a moving front, visited pipes stream in orange */
+let flowT=0,flowLast=performance.now();
+function flowTick(now){
+  if(!paused&&!reduced)flowT+=(now-flowLast)/1000*speed;flowLast=now;
+  if(G&&G.edges)for(const e of G.edges){
+    const act=G.active&&G.active.e===e,hot=act||e.el.classList.contains('hot');
+    const v=hot?95:34,s0=8,s1=e.len-ARROW-6;
+    const phase=(flowT*v)%TRI_GAP;
+    const front=act?s0+(s1-s0)*G.active.p:1e9;
+    // the shaded band behind each triangle swells and fades in time with the flow
+    const pulse=reduced?1:.62+.38*Math.sin(flowT*(hot?7:4)*Math.PI/2);
+    e.tris.forEach((tr,i)=>{
+      const s=s0+phase+i*TRI_GAP,gl=e.glows[i];
+      if(s>s1||s>front+0.01){tr.setAttribute('opacity',0);gl.setAttribute('opacity',0);return}
+      const pt=e.path.getPointAtLength(s),pt2=e.path.getPointAtLength(Math.min(e.len,s+1));
+      const ang=Math.atan2(pt2.y-pt.y,pt2.x-pt.x)*180/Math.PI;
+      const fade=Math.max(0,Math.min(1,(s-s0)/18,(s1-s)/18));
+      tr.setAttribute('transform',`translate(${pt.x},${pt.y}) rotate(${ang})`);
+      tr.setAttribute('fill',hot?'url(#tri-hot)':'url(#tri)');
+      tr.setAttribute('opacity',(hot?1:.8)*fade);
+      gl.setAttribute('transform',`translate(${pt.x},${pt.y}) rotate(${ang})`);
+      gl.setAttribute('fill',hot?'url(#pg-hot)':'url(#pg)');
+      gl.setAttribute('opacity',(hot?1:.75)*fade*pulse);
+    });
+  }
+  requestAnimationFrame(flowTick);
+}
+requestAnimationFrame(flowTick);
+function setNow(icon,step,label){$('#nowIcon').textContent=icon;$('#nowStep').textContent=step;$('#nowLabel').textContent=label||'\u00a0'}
+function arrive(n,via){
+  stepNo++;G.nodes.forEach(m=>{m.el.classList.remove('lit');m.hal.classList.remove('lit')});
+  n.el.classList.add('seen');void n.el.getBBox();n.el.classList.add('lit');n.hal.classList.add('lit');
+  setNow(n.icon,`Step ${stepNo}${via?' ('+via+')':''}`,n.label);
+  if(stepping){stepping=false}
+}
+function clearTrail(){
+  G.nodes.forEach(n=>{n.el.classList.remove('lit','seen');n.hal.classList.remove('lit')});
+  G.edges.forEach(e=>{e.el.classList.remove('hot');e.path.setAttribute('marker-end','url(#ah)')});
+}
+async function playRun(id){
+  clearTrail();stepNo=0;let cur=G.start;arrive(cur);
+  await wait(reduced?1600:900,id);
+  for(let guard=0;guard<G.nodes.size*2;guard++){
+    const outs=G.out.get(cur.id);
+    if(!outs.length){setNow('🏁','End of this path','Next run tries another branch');return}
+    const k=G.rr.get(cur.id)||0;const e=outs[k%outs.length];G.rr.set(cur.id,k+1);
+    e.el.classList.add('hot');e.path.setAttribute('marker-end','url(#ah-hot)');
+    await travel(e,id);
+    cur=G.nodes.get(e.to);arrive(cur,e.label);
+    if(cur===G.start){await wait(900,id);setNow('🔁','Back to the start','The loop repeats');return}
+    await wait(reduced?1600:900,id);
+  }
+}
+async function loop(id,intro){
+  try{await wait(intro,id);
+    while(id===loopId){await playRun(id);await wait(1800,id)}
+  }catch(err){if(err!==CANCEL)console.error(err)}
+}
+function startLoop(intro=300){G.rr=new Map();const id=++loopId;loop(id,intro)}
+function stopLoop(){loopId++}
+
+$('#play').onclick=()=>{paused=!paused;$('#play').textContent=paused?'Play':'Pause';$('#step').disabled=!paused};
+$('#step').onclick=()=>{if(paused)stepping=true};
+$('#restart').onclick=()=>{if(!G)return;clearTrail();startLoop(300)};
+const speeds=[1,2,0.5];
+$('#speed').onclick=()=>{speed=speeds[(speeds.indexOf(speed)+1)%speeds.length];$('#speed').textContent=`Speed ${speed===0.5?'½':speed}×`};
+$('#zoom').onclick=()=>{const z=$('#stage').classList.toggle('zoomed');$('#zoom').textContent=z?'Fit to screen':'Zoom in'};
+
+/* ---------- editor ---------- */
+const dsl=$('#dsl');
+function apply(src){
+  const g=parse(src);const errs=$('#errs');
+  if(g.errors.length){errs.textContent=g.errors.slice(0,3).join(' ');errs.classList.add('err')}
+  else{errs.textContent='';errs.classList.remove('err')}
+  if(g.nodes.size)render(g);
+}
+function loadPreset(key){
+  document.querySelectorAll('#presets button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.p===key));
+  dsl.value=PRESETS[key];apply(dsl.value);
+}
+$('#presets').onclick=e=>{const b=e.target.closest('button');if(b){loadPreset(b.dataset.p);$('#title').scrollIntoView({behavior:reduced?'auto':'smooth'})}};
+$('#apply').onclick=()=>{document.querySelectorAll('#presets button').forEach(b=>b.setAttribute('aria-pressed','false'));apply(dsl.value);$('#title').scrollIntoView({behavior:reduced?'auto':'smooth'})};
+
+/* ---------- AI generation ---------- */
+const genBtn=$('#gen'),stopBtn=$('#stopgen'),genMsg=$('#genmsg');
+const sampleP=(window.claude&&claude.use)?claude.use('sample').catch(()=>null):Promise.resolve(null);
+function noGen(){genBtn.hidden=true;stopBtn.hidden=true;genMsg.textContent='Generating needs Claude, which isn’t available on this page. Write the steps by hand below instead.';$('#hand').open=true}
+sampleP.then(s=>{if(!s)noGen()});
+let genCtl=null;
+function promptFor(desc){return `Turn this process into a flowchart written in a small text format.
+
+Process: """${desc}"""
+
+Format rules:
+- First line: title: <a short heading, at most 8 words>
+- Step lines: id: Label | emoji
+  - id uses lowercase letters, digits or hyphens.
+  - Label is 2 to 6 words in sentence case.
+  - emoji is one emoji that pictures the step.
+  - Append "| system" only for steps carried out by an app, platform, machine or organization rather than the person going through the process.
+- Link lines: from -> to   or   from -> to: Label  (a 1 to 3 word branch label; use labels on arrows that leave a decision).
+- 5 to 12 steps. Show branches where outcomes differ, and add a link back to an earlier step when the process repeats.
+- The first step listed is where the process starts.
+Return only these lines. No commentary and no code fences.
+
+Example:
+${PRESETS.job}`}
+genBtn.onclick=async()=>{
+  const desc=$('#desc').value.trim();
+  if(!desc){genMsg.textContent='Describe a process first, then generate.';genMsg.classList.add('err');$('#desc').focus();return}
+  const sample=await sampleP;if(!sample){noGen();return}
+  genMsg.classList.remove('err');genMsg.textContent='Thinking…';
+  genBtn.disabled=true;stopBtn.hidden=false;$('#hand').open=true;
+  genCtl=new AbortController();
+  try{
+    const {text}=await sample(promptFor(desc),{signal:genCtl.signal,onText:({text})=>{dsl.value=text;genMsg.textContent='Writing the steps…'}});
+    dsl.value=text.replace(/```[a-z]*/gi,'').trim();
+    document.querySelectorAll('#presets button').forEach(b=>b.setAttribute('aria-pressed','false'));
+    apply(dsl.value);genMsg.textContent='Done. Tweak the steps below and press Update chart to change anything.';
+    $('#title').scrollIntoView({behavior:reduced?'auto':'smooth'});
+  }catch(e){
+    const c=e&&e.code;genMsg.classList.add('err');
+    genMsg.textContent=c==='cancelled'?'Stopped.':c==='not_granted'?'Generating needs your OK to use Claude. You can still write the steps by hand below.':c==='rate_limited'?'Too many requests at once. Wait a moment, then generate again.':'This one didn’t generate. Try rewording the description, or write the steps by hand.';
+  }finally{genBtn.disabled=false;stopBtn.hidden=true}
+};
+stopBtn.onclick=()=>genCtl&&genCtl.abort();
+
+/* ---------- export ---------- */
+const downloadsP=(window.claude&&claude.use)?claude.use('downloads').catch(()=>null):Promise.resolve(null);
+downloadsP.then(d=>{if(!d)$('#save').parentElement.hidden=true});
+$('#save').onclick=async()=>{
+  const d=await downloadsP;if(!d||!G)return;
+  const v=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const clone=svg.cloneNode(true);
+  clone.querySelectorAll('[style]').forEach(x=>x.removeAttribute('style'));
+  clone.querySelectorAll('.tris,.node-h').forEach(x=>x.remove());
+  clone.querySelectorAll('.lit,.seen,.hot').forEach(x=>x.classList.remove('lit','seen','hot'));
+  clone.querySelectorAll('path.pipe-out').forEach(p=>p.setAttribute('marker-end','url(#ah)'));
+  clone.querySelectorAll('path.pipe-in,path.pipe-out').forEach(p=>p.setAttribute('stroke-dasharray',p.getAttribute('data-len')+' 99999'));
+  const [x,y,w,h]=G.bounds;const top=90;
+  clone.setAttribute('viewBox',`${x} ${y-top} ${w} ${h+top}`);clone.setAttribute('xmlns',NS);
+  clone.setAttribute('width',w);clone.setAttribute('height',h+top);
+  const st=document.createElementNS(NS,'style');
+  st.textContent=`.nrect{fill:${v('--card')};stroke-width:4}.nrect.step{stroke:${v('--blue')}}.nrect.system{stroke:${v('--orange')}}
+.nlabel{font-family:Archivo,'Arial Narrow',Arial,sans-serif;font-weight:800;font-stretch:86%;font-size:21px;fill:${v('--ink')}}
+.nicon{font-size:36px}.pipe-out{fill:none;stroke:${v('--blue')};stroke-width:26}.pipe-in{fill:none;stroke:${v('--card')};stroke-width:16}.ah,.ah-hot{fill:${v('--blue')}}
+.elabel rect{fill:${v('--card')};stroke:${v('--line')};stroke-width:2}.elabel text{font-family:Archivo,Arial,sans-serif;font-size:16px;font-weight:700;fill:${v('--muted')}}
+.ttl{font-family:Archivo,'Arial Narrow',Arial,sans-serif;font-weight:900;font-stretch:78%;font-size:40px;fill:${v('--ink')}}`;
+  clone.insertBefore(st,clone.firstChild);
+  const bg=el('rect',{x,y:y-top,width:w,height:h+top,fill:v('--card')});clone.insertBefore(bg,st.nextSibling);
+  const tt=el('text',{class:'ttl',x:x+24,y:y-top+60});tt.textContent=(G.title||'Flowchart').toUpperCase();clone.insertBefore(tt,bg.nextSibling);
+  const data='<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(clone);
+  const name=(G.title||'flowchart').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'flowchart';
+  const m=$('#savemsg');
+  try{await d.save({filename:name+'.svg',data});m.textContent='Saved.';m.classList.remove('err')}
+  catch(e){m.classList.add('err');m.textContent=e&&e.code==='declined'?'Save cancelled.':'The file didn’t save. Try again in a moment.'}
+};
+
+/* ---------- start ---------- */
+(async()=>{
+  try{await Promise.race([document.fonts.load('800 21px Archivo'),new Promise(r=>setTimeout(r,1500))])}catch(e){}
+  if(!SHOW_BUILDER)document.querySelector('.make').hidden=true;
+  if(INITIAL_FLOW){dsl.value=INITIAL_FLOW;document.querySelectorAll('#presets button').forEach(b=>b.setAttribute('aria-pressed','false'));apply(INITIAL_FLOW)}
+  else loadPreset('reels');
+})();
+</script>
+</body>
+</html>
