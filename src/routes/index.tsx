@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AgentGraph } from "@/components/doughdilly/AgentGraph";
 import { Workflow } from "@/components/doughdilly/Workflow";
 import { Spark } from "@/components/doughdilly/Spark";
@@ -34,6 +34,13 @@ function Index() {
   const [step, setStep] = useState(-1);
   const [now, setNow] = useState<Date | null>(null);
   const running = step >= 0 && step < RUN_SCRIPT.length;
+  const hvs = useRef<HTMLIFrameElement>(null);
+  useEffect(() => {
+    if (!running) return;
+    const e = RUN_SCRIPT[step]!;
+    const to = e.to ?? e.tool ?? "DILLY";
+    hvs.current?.contentWindow?.postMessage({ hvs: { type: "msg", from: e.from, to, kind: e.kind, note: e.note, busy: 1 } }, "*");
+  }, [step, running]);
 
   useEffect(() => { setNow(new Date()); const t = setInterval(() => setNow(new Date()), 15000); return () => clearInterval(t); }, []);
 
@@ -173,6 +180,7 @@ function Index() {
             <div className="flex justify-between mb-2"><h2 className="font-semibold">Agent flow & tool use</h2>
               <span className="font-mono text-xs text-muted-foreground">{running ? `step ${step + 1}/${RUN_SCRIPT.length}` : step >= RUN_SCRIPT.length ? "complete" : "idle — press Run"}</span></div>
             <AgentGraph step={running ? step : -1} />
+            <iframe ref={hvs} src="/hvs.html" title="3D agent swarm" className="mt-3 h-[600px] w-full rounded border border-border bg-background" />
             <div className="mt-2 h-36 overflow-y-auto rounded bg-background p-2 font-mono text-[11px] space-y-0.5 flex flex-col-reverse">
               <div>
                 {log.length === 0 && <div className="text-muted-foreground">Event stream will appear here…</div>}

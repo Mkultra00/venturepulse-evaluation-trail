@@ -1,0 +1,46 @@
+{
+  "title": "HELIOS Mesh · Operation GLASS LANTERN",
+  "brand": {
+    "name": "HELIOS MESH",
+    "tagline": "Fictional orchestration framework v4.2",
+    "operationLabel": "Operation",
+    "operation": "GLASS LANTERN"
+  },
+  "mode": "simulate",
+  "orchestrator": { "id": "HELIOS-PRIME", "role": "Orchestrator", "model": "HELIOS Planner 4.2" },
+  "agents": [
+    { "id": "SCOUT",   "role": "Recon and retrieval",     "model": "HX-7 Sprint" },
+    { "id": "LEXICON", "role": "Language extraction",     "model": "HX-9 Dense" },
+    { "id": "ATLAS",   "role": "Geospatial correlation",  "model": "HX-7 Sprint" },
+    { "id": "VAULT",   "role": "Memory and vector store", "model": "MNEMOS-3" },
+    { "id": "FORGE",   "role": "Tool execution",          "model": "HX-5 Tooling" },
+    { "id": "WARDEN",  "role": "Validation and security", "model": "AEGIS-2" },
+    { "id": "HERALD",  "role": "Synthesis and reporting", "model": "HX-9 Dense" }
+  ],
+  "tools": [
+    { "id": "ORBITAL-FEED", "role": "Satellite imagery API",  "verbs": ["pull SAR tiles", "query AIS tracks", "fetch thermal pass"] },
+    { "id": "LEDGER-X",     "role": "Corporate registry API", "verbs": ["resolve beneficial owner", "fetch filings", "diff director list"] },
+    { "id": "SANDBOX-EXEC", "role": "Code runtime",           "verbs": ["run anomaly model", "execute manifest parser", "score outliers"] },
+    { "id": "WEB-INDEX",    "role": "Open-source search API", "verbs": ["search port notices", "crawl tender listings", "fetch trade bulletins"] }
+  ],
+  "roles": { "memory": "VAULT", "validator": "WARDEN", "toolRunner": "FORGE" },
+  "simulation": {
+    "tasks": [
+      { "name": "Map AIS vessel anomalies near Port Calder", "lead": "ATLAS" },
+      { "name": "Extract entities from 4,200 cargo manifests", "lead": "LEXICON" },
+      { "name": "Correlate watch-list changes, 72 h window", "lead": "SCOUT" },
+      { "name": "Rebuild ownership graph for Kestrel Holdings", "lead": "SCOUT" },
+      { "name": "Score berth telemetry with anomaly model", "lead": "FORGE" },
+      { "name": "Cross-reference customs and port-call logs", "lead": "LEXICON" },
+      { "name": "Flag dwell-time outliers inside geofence", "lead": "ATLAS" },
+      { "name": "Audit evidence-chain integrity", "lead": "WARDEN" },
+      { "name": "Draft executive risk brief", "lead": "HERALD" },
+      { "name": "Recall prior incident patterns", "lead": "VAULT" }
+    ],
+    "maxConcurrent": 3,
+    "subagents": [2, 4],
+    "nestedRate": 0.12,
+    "toolFailRate": 0.1,
+    "rejectRate": 0.15
+  }
+}

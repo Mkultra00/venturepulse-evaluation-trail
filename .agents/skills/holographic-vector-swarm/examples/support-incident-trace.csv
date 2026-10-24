@@ -1,0 +1,41 @@
+timestamp,source,target,kind,action,task,status,note
+2026-10-15T14:00:00Z,ROUTER,TRIAGE,command,task_start,INC-4471,,Checkout errors spiking in EU region
+2026-10-15T14:00:02Z,TRIAGE,KB,retrieve,,,,Search runbooks for checkout 5xx
+2026-10-15T14:00:03Z,KB,TRIAGE,result,,,,3 runbooks matched
+2026-10-15T14:00:04Z,TRIAGE,TRIAGE-a,,spawn,,,Log analysis subagent
+2026-10-15T14:00:04Z,TRIAGE,TRIAGE-b,,spawn,,,Metrics subagent
+2026-10-15T14:00:06Z,TRIAGE-a,LOGS-API,tool_call,,,,Query error logs last 30 min
+2026-10-15T14:00:07Z,TRIAGE-b,METRICS-API,tool_call,,,,Pull p99 latency by service
+2026-10-15T14:00:09Z,LOGS-API,TRIAGE-a,tool_result,,,,"1,284 errors from payments-svc"
+2026-10-15T14:00:10Z,METRICS-API,TRIAGE-b,timeout,,,,Metrics query timed out
+2026-10-15T14:00:12Z,TRIAGE-b,METRICS-API,tool_call,,,,Retry with narrower window
+2026-10-15T14:00:14Z,METRICS-API,TRIAGE-b,tool_result,,,,payments-svc p99 at 4.2 s
+2026-10-15T14:00:15Z,TRIAGE-a,TRIAGE,result,,,,Root cause candidate: payments-svc
+2026-10-15T14:00:16Z,,TRIAGE-a,,retire,,,
+2026-10-15T14:00:16Z,TRIAGE-b,TRIAGE,result,,,,Latency confirms payments-svc
+2026-10-15T14:00:17Z,,TRIAGE-b,,retire,,,
+2026-10-15T14:00:18Z,TRIAGE,FIXER,message,,,,Hand off: payments-svc degradation
+2026-10-15T14:00:19Z,ROUTER,COMMS,command,task_start,INC-4471-COMMS,,Draft customer status update
+2026-10-15T14:00:20Z,FIXER,FIXER-a,,spawn,,,Deploy history subagent
+2026-10-15T14:00:21Z,FIXER-a,DEPLOY-API,tool_call,,,,List deploys last 2 h
+2026-10-15T14:00:22Z,COMMS,KB,retrieve,,,,Load status page templates
+2026-10-15T14:00:23Z,DEPLOY-API,FIXER-a,tool_result,,,,payments-svc v812 deployed 13:41
+2026-10-15T14:00:24Z,KB,COMMS,result,,,,Template: partial outage
+2026-10-15T14:00:25Z,FIXER-a,FIXER,result,,,,Suspect deploy v812
+2026-10-15T14:00:25Z,,FIXER-a,,retire,,,
+2026-10-15T14:00:26Z,FIXER,REVIEWER,message,,,,Propose rollback to v811
+2026-10-15T14:00:28Z,REVIEWER,FIXER,denied,,,,Rollback needs change ticket
+2026-10-15T14:00:29Z,FIXER,FIXER-b,,spawn,,,Change ticket subagent
+2026-10-15T14:00:30Z,FIXER-b,TICKET-API,tool_call,,,,Open emergency change CHG-2219
+2026-10-15T14:00:32Z,TICKET-API,FIXER-b,tool_result,,,,CHG-2219 approved
+2026-10-15T14:00:33Z,FIXER-b,FIXER,result,,,,Ticket attached
+2026-10-15T14:00:33Z,,FIXER-b,,retire,,,
+2026-10-15T14:00:34Z,FIXER,REVIEWER,message,,,,Resubmit rollback with CHG-2219
+2026-10-15T14:00:36Z,REVIEWER,FIXER,validated,,,,Rollback approved
+2026-10-15T14:00:37Z,FIXER,DEPLOY-API,tool_call,,,,Roll back payments-svc to v811
+2026-10-15T14:00:40Z,DEPLOY-API,FIXER,tool_result,,,,Rollback complete
+2026-10-15T14:00:41Z,COMMS,REVIEWER,message,,,,Review customer update draft
+2026-10-15T14:00:43Z,REVIEWER,COMMS,validated,,,,Approved for status page
+2026-10-15T14:00:44Z,COMMS,ROUTER,result,task_end,INC-4471-COMMS,,Status page updated
+2026-10-15T14:00:45Z,FIXER,KB,memory_write,,,,Store incident pattern: bad deploy → p99 spike
+2026-10-15T14:00:47Z,FIXER,ROUTER,result,task_end,INC-4471,,Error rate back to baseline

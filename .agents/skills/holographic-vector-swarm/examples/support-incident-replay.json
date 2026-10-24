@@ -1,0 +1,371 @@
+{
+  "mode": "replay",
+  "orchestrator": {
+    "id": "ROUTER",
+    "role": "Incident router"
+  },
+  "agents": [
+    {
+      "id": "TRIAGE",
+      "role": "Triage and diagnosis"
+    },
+    {
+      "id": "KB",
+      "role": "Runbooks and memory"
+    },
+    {
+      "id": "FIXER",
+      "role": "Remediation"
+    },
+    {
+      "id": "COMMS",
+      "role": "Customer comms"
+    },
+    {
+      "id": "REVIEWER",
+      "role": "Change review"
+    }
+  ],
+  "tools": [
+    {
+      "id": "DEPLOY-API",
+      "role": "External tool"
+    },
+    {
+      "id": "LOGS-API",
+      "role": "External tool"
+    },
+    {
+      "id": "METRICS-API",
+      "role": "External tool"
+    },
+    {
+      "id": "TICKET-API",
+      "role": "External tool"
+    }
+  ],
+  "roles": {
+    "memory": "KB",
+    "validator": "REVIEWER"
+  },
+  "replay": {
+    "events": [
+      {
+        "t": 0.0,
+        "type": "task",
+        "phase": "start",
+        "id": "INC-4471",
+        "lead": "TRIAGE",
+        "name": "Checkout errors spiking in EU region"
+      },
+      {
+        "t": 3.19,
+        "type": "msg",
+        "from": "TRIAGE",
+        "to": "KB",
+        "kind": "mem",
+        "note": "Search runbooks for checkout 5xx"
+      },
+      {
+        "t": 4.79,
+        "type": "msg",
+        "from": "KB",
+        "to": "TRIAGE",
+        "kind": "mem",
+        "note": "3 runbooks matched"
+      },
+      {
+        "t": 6.38,
+        "type": "spawn",
+        "parent": "TRIAGE",
+        "id": "TRIAGE-a",
+        "note": "Log analysis subagent"
+      },
+      {
+        "t": 6.5,
+        "type": "spawn",
+        "parent": "TRIAGE",
+        "id": "TRIAGE-b",
+        "note": "Metrics subagent"
+      },
+      {
+        "t": 9.57,
+        "type": "msg",
+        "from": "TRIAGE-a",
+        "to": "LOGS-API",
+        "kind": "tool",
+        "note": "Query error logs last 30 min"
+      },
+      {
+        "t": 11.17,
+        "type": "msg",
+        "from": "TRIAGE-b",
+        "to": "METRICS-API",
+        "kind": "tool",
+        "note": "Pull p99 latency by service"
+      },
+      {
+        "t": 14.36,
+        "type": "msg",
+        "from": "LOGS-API",
+        "to": "TRIAGE-a",
+        "kind": "tool",
+        "note": "1,284 errors from payments-svc"
+      },
+      {
+        "t": 15.96,
+        "type": "msg",
+        "from": "METRICS-API",
+        "to": "TRIAGE-b",
+        "kind": "err",
+        "note": "Metrics query timed out"
+      },
+      {
+        "t": 19.15,
+        "type": "msg",
+        "from": "TRIAGE-b",
+        "to": "METRICS-API",
+        "kind": "tool",
+        "note": "Retry with narrower window"
+      },
+      {
+        "t": 22.34,
+        "type": "msg",
+        "from": "METRICS-API",
+        "to": "TRIAGE-b",
+        "kind": "tool",
+        "note": "payments-svc p99 at 4.2 s"
+      },
+      {
+        "t": 23.94,
+        "type": "msg",
+        "from": "TRIAGE-a",
+        "to": "TRIAGE",
+        "kind": "ok",
+        "note": "Root cause candidate: payments-svc"
+      },
+      {
+        "t": 25.53,
+        "type": "retire",
+        "id": "TRIAGE-a",
+        "report": "ok"
+      },
+      {
+        "t": 25.65,
+        "type": "msg",
+        "from": "TRIAGE-b",
+        "to": "TRIAGE",
+        "kind": "ok",
+        "note": "Latency confirms payments-svc"
+      },
+      {
+        "t": 27.13,
+        "type": "retire",
+        "id": "TRIAGE-b",
+        "report": "ok"
+      },
+      {
+        "t": 28.72,
+        "type": "msg",
+        "from": "TRIAGE",
+        "to": "FIXER",
+        "kind": "comm",
+        "note": "Hand off: payments-svc degradation"
+      },
+      {
+        "t": 30.32,
+        "type": "task",
+        "phase": "start",
+        "id": "INC-4471-COMMS",
+        "lead": "COMMS",
+        "name": "Draft customer status update"
+      },
+      {
+        "t": 31.91,
+        "type": "spawn",
+        "parent": "FIXER",
+        "id": "FIXER-a",
+        "note": "Deploy history subagent"
+      },
+      {
+        "t": 33.51,
+        "type": "msg",
+        "from": "FIXER-a",
+        "to": "DEPLOY-API",
+        "kind": "tool",
+        "note": "List deploys last 2 h"
+      },
+      {
+        "t": 35.11,
+        "type": "msg",
+        "from": "COMMS",
+        "to": "KB",
+        "kind": "mem",
+        "note": "Load status page templates"
+      },
+      {
+        "t": 36.7,
+        "type": "msg",
+        "from": "DEPLOY-API",
+        "to": "FIXER-a",
+        "kind": "tool",
+        "note": "payments-svc v812 deployed 13:41"
+      },
+      {
+        "t": 38.3,
+        "type": "msg",
+        "from": "KB",
+        "to": "COMMS",
+        "kind": "mem",
+        "note": "Template: partial outage"
+      },
+      {
+        "t": 39.89,
+        "type": "msg",
+        "from": "FIXER-a",
+        "to": "FIXER",
+        "kind": "ok",
+        "note": "Suspect deploy v812"
+      },
+      {
+        "t": 40.01,
+        "type": "retire",
+        "id": "FIXER-a",
+        "report": "ok"
+      },
+      {
+        "t": 41.49,
+        "type": "msg",
+        "from": "FIXER",
+        "to": "REVIEWER",
+        "kind": "comm",
+        "note": "Propose rollback to v811"
+      },
+      {
+        "t": 44.68,
+        "type": "msg",
+        "from": "REVIEWER",
+        "to": "FIXER",
+        "kind": "err",
+        "note": "Rollback needs change ticket"
+      },
+      {
+        "t": 46.28,
+        "type": "spawn",
+        "parent": "FIXER",
+        "id": "FIXER-b",
+        "note": "Change ticket subagent"
+      },
+      {
+        "t": 47.87,
+        "type": "msg",
+        "from": "FIXER-b",
+        "to": "TICKET-API",
+        "kind": "tool",
+        "note": "Open emergency change CHG-2219"
+      },
+      {
+        "t": 51.06,
+        "type": "msg",
+        "from": "TICKET-API",
+        "to": "FIXER-b",
+        "kind": "tool",
+        "note": "CHG-2219 approved"
+      },
+      {
+        "t": 52.66,
+        "type": "msg",
+        "from": "FIXER-b",
+        "to": "FIXER",
+        "kind": "ok",
+        "note": "Ticket attached"
+      },
+      {
+        "t": 52.78,
+        "type": "retire",
+        "id": "FIXER-b",
+        "report": "ok"
+      },
+      {
+        "t": 54.26,
+        "type": "msg",
+        "from": "FIXER",
+        "to": "REVIEWER",
+        "kind": "comm",
+        "note": "Resubmit rollback with CHG-2219"
+      },
+      {
+        "t": 57.45,
+        "type": "msg",
+        "from": "REVIEWER",
+        "to": "FIXER",
+        "kind": "ok",
+        "note": "Rollback approved"
+      },
+      {
+        "t": 59.04,
+        "type": "msg",
+        "from": "FIXER",
+        "to": "DEPLOY-API",
+        "kind": "tool",
+        "note": "Roll back payments-svc to v811"
+      },
+      {
+        "t": 63.83,
+        "type": "msg",
+        "from": "DEPLOY-API",
+        "to": "FIXER",
+        "kind": "tool",
+        "note": "Rollback complete"
+      },
+      {
+        "t": 65.43,
+        "type": "msg",
+        "from": "COMMS",
+        "to": "REVIEWER",
+        "kind": "comm",
+        "note": "Review customer update draft"
+      },
+      {
+        "t": 68.62,
+        "type": "msg",
+        "from": "REVIEWER",
+        "to": "COMMS",
+        "kind": "ok",
+        "note": "Approved for status page"
+      },
+      {
+        "t": 70.21,
+        "type": "task",
+        "phase": "end",
+        "id": "INC-4471-COMMS",
+        "ok": true,
+        "note": "Status page updated"
+      },
+      {
+        "t": 71.81,
+        "type": "msg",
+        "from": "FIXER",
+        "to": "KB",
+        "kind": "mem",
+        "note": "Store incident pattern: bad deploy → p99 spike"
+      },
+      {
+        "t": 75.0,
+        "type": "task",
+        "phase": "end",
+        "id": "INC-4471",
+        "ok": true,
+        "note": "Error rate back to baseline"
+      }
+    ],
+    "loop": true
+  },
+  "brand": {
+    "name": "PAGERFLOW",
+    "tagline": "Incident response swarm",
+    "operationLabel": "Incident",
+    "operation": "INC-4471",
+    "badge": "Replay of a sample trace"
+  }
+}
