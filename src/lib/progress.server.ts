@@ -58,7 +58,7 @@ function parseAssessment(raw: string): Assessment {
 export async function assessUpdate(apiKey: string, baseRaw: string, startup: string, kpis: string, update: string) {
   const provider = createOpenAI({ baseURL: ninooBase(baseRaw), apiKey, fetch: runIdFetch() });
   const prompt = `Startup: ${startup}\nLatest KPIs: ${kpis}\n\nFounder progress update:\n${update}`;
-  const sessionId = `assess-${startup.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`;
+  const sessionId = `assess-${startup.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`; // stable per startup so runs group into one PRISM trajectory
   const started = performance.now();
   const result = streamText({
     model: provider.chat(NINOO_MODEL),
