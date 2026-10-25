@@ -1,6 +1,6 @@
 # Venturepulse Evaluation Trail
 
-read and give me your opinion on this to build a hackathon tool. so that vc and investpors can evaluate startup founders with a time sequence fame so that kpi and evals can dynamically chang. Use the visualization for showing agentic flow and tool use and th operation workflow for hleping explain where in the process the applicants are . there should be a report cart alpong with the time since last evaluatd . create a demo mode with a synthetic startup to show and demo
+read and give me your opinion on this to build a hackathon tool. so that vc and investpors can evaluate startup founders with a time sequence fame so that kpi and evals can dynamically chang. Use t[...]
 
 This project was built with [Lovable](https://lovable.dev).
 
@@ -8,9 +8,9 @@ This project was built with [Lovable](https://lovable.dev).
 
 ## How the sample datasets use Akta
 
-The 7 sample applicants (Cinderwell, Haulmark, Ledgerline, Parcelwise, Quillstack, Tessellate Bio, Vantor) are fictional, but they're grounded in real public-record data from [akta.pro](https://akta.pro) (hackathon sponsor).
+The 7 sample applicants (Cinderwell, Haulmark, Ledgerline, Parcelwise, Quillstack, Tessellate Bio, Vantor) are fictional, but they're grounded in real public-record data from [akta.pro](https://ak[...)
 
-- **Real companies, one per archetype.** We pulled raw Akta company-enrichment responses (`GET /api/v1/company/enrichment/`, 2026-10-24) for five real companies, each mirroring a fictional applicant:
+- **Real companies, one per archetype.** We pulled raw Akta company-enrichment responses (`GET /api/v1/company/enrichment/`, 2026-10-24) for five real companies, each mirroring a fictional applica[...]
 
   | Real company | Mirrors | Headcount | Rev est. | Val est. |
   |---|---|---|---|---|
@@ -20,12 +20,12 @@ The 7 sample applicants (Cinderwell, Haulmark, Ledgerline, Parcelwise, Quillstac
   | Sixfold AI (insurance underwriting) | Quillstack | 51-100 | $10-25M | $100-250M |
   | Rillet (AI ERP / rev-rec) | Vantor | 101-250 | $25-50M | $500M-1B |
 
-- **Sections used:** firmographic, management_profile, financial_estimate, digital_presence, strategic_signal, trust_signal. (`funding_detail` isn't on the hackathon plan; funding rounds still appear in `strategic_signal.scale_indicator`.)
-- **Wired in as competitor evidence** on the market and defensibility dimensions (`source_type: akta_company_enrichment`). Example: Ledgerline claims a moat from 40M invoices, while Vic.ai, a real incumbent, claims hundreds of millions.
+- **Sections used:** firmographic, management_profile, financial_estimate, digital_presence, strategic_signal, trust_signal. (`funding_detail` isn't on the hackathon plan; funding rounds still app[...]
+- **Wired in as competitor evidence** on the market and defensibility dimensions (`source_type: akta_company_enrichment`). Example: Ledgerline claims a moat from 40M invoices, while Vic.ai, a real[...]
 - **Every signal cites its source URLs**, so evidence in the report card can link back to it.
 - **Real contradiction to catch:** Vic.ai's signals say "previously bootstrapped without venture capital" right next to a $52M Series C — the kind of source conflict DoughDilly's verifier flags.
 
-Akta API notes: `x-api-key` header; search with `GET /api/v1/company/search/?query=<name>` to get a uuid; enrichment accepts a uuid or domain (`?company=ramp.com&sections=a,b`); 25 requests/min, each section metered. The key is not stored in this repo.
+Akta API notes: `x-api-key` header; search with `GET /api/v1/company/search/?query=<name>` to get a uuid; enrichment accepts a uuid or domain (`?company=ramp.com&sections=a,b`); 25 requests/min, e[...]
 
 ## Build with Lovable
 
@@ -45,3 +45,9 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## Contributors
+
+- Forrest Pan
+- Kabir Samtani
+- Sahil Pardasani
