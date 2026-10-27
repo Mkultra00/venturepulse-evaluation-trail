@@ -29,7 +29,7 @@ export async function emitAssessmentRecord(opts: {
           `Confidence: ${a.confidence}. KPI impacts: ${impacts || "none"}. ` +
           `Red flags: ${a.redFlags.length ? a.redFlags.join("; ") : "none"}. ` +
           `Summary: ${a.summary} ` +
-          `Model: ${opts.model} via Neecroi. Latency: ${opts.latencyMs} ms. PRISM session: ${opts.sessionId}.`,
+          `Model: ${opts.model} via Ollama. Latency: ${opts.latencyMs} ms. PRISM session: ${opts.sessionId}.`,
       }),
     });
     if (!res.ok) console.error("Roundtable record failed", res.status, await res.text());

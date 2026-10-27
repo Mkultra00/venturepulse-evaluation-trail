@@ -1,4 +1,3 @@
-import demoVideo from "@/assets/videos/doughdilly-demo.mp4.asset.json";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AgentGraph } from "@/components/doughdilly/AgentGraph";
@@ -276,7 +275,7 @@ const STEPS: [string, string][] = [
 
 const SPONSORS: [string, string, string][] = [
   ["Akta", "Where the sample companies came from", "The 7 sample applicants are fictional, but built from real company-enrichment records pulled from Akta: headcount, revenue and valuation estimates, management, digital presence, and strategic and trust signals. Five real companies mirror five applicants — Vic.ai→Ledgerline, Pallet→Haulmark, Togal.AI→Cinderwell, Sixfold AI→Quillstack, Rillet→Vantor. Their records are wired in as competitor evidence on the market and defensibility scores, and every signal cites its source URL. One catch is real: Vic.ai's record says \"previously bootstrapped without venture capital\" next to a $52M Series C, and the verifier flags it. Akta was used to build the datasets, not called live by the app."],
-  ["Neecroi", "The model that reads founder updates", "\"Assess update\" runs on Neecroi: Claude Sonnet 5.5 gets the latest KPIs plus the founder's update and answers with KPI arrows, red flags, follow-up questions and a draft partner note. It runs on the server with a key kept in settings, so the key never ships to the browser."],
+  ["Ollama", "The model that reads founder updates", "\"Assess update\" runs on Ollama's OpenAI-compatible endpoint: a locally hosted model gets the latest KPIs plus the founder's update and answers with KPI arrows, red flags, follow-up questions and a draft partner note. It runs on the server with the key kept in settings, so the key never ships to the browser — and the model can be swapped by changing one env var."],
   ["PRISM", "Proof of what the AI actually did", "Every assessment is traced to PRISM the moment it finishes — prompt, answer, model, latency — and traces for the same startup group into one trajectory. The PRISM traces tab reads them back from PRISM's own API and groups them by startup. The audit step inside the demo workflow and the PRISM badge in the header are still illustrative labels; the real tracing runs on the assessment feature."],
   ["Roundtable", "A live activity log", "DoughDilly has its own identity on Roundtable (\"doughdilly-app\") and posts one task record as each assessment runs, carrying confidence, KPI arrows, red flags, model, latency and the matching PRISM session — so Dilly's activity sits next to the traces instead of being reconstructed afterwards."],
 ];
@@ -288,7 +287,7 @@ function HowTo() {
         <h2 className="text-2xl font-bold">How to use DoughDilly</h2>
         <p className="text-sm text-muted-foreground">DoughDilly helps investors track a startup over time. AI agents gather and check evidence, score it, and show their work. A human partner always makes the call.</p>
       </div>
-      <video src={demoVideo.url} controls preload="metadata" className="w-full rounded-md bg-muted" />
+      <video src="/videos/doughdilly-demo.mp4" controls preload="metadata" className="w-full rounded-md bg-muted" />
       <ol className="grid md:grid-cols-2 gap-3">
         {STEPS.map(([t, d], i) => (
           <li key={t} className="rounded-md bg-muted p-4">
@@ -300,7 +299,7 @@ function HowTo() {
       </ol>
       <div>
         <h3 className="font-semibold">How the four sponsors were used</h3>
-        <p className="text-sm text-muted-foreground mb-3">Akta, Neecroi, PRISM and Roundtable each did a different job in this build.</p>
+        <p className="text-sm text-muted-foreground mb-3">Akta, Ollama, PRISM and Roundtable each did a different job in this build.</p>
         <div className="grid md:grid-cols-2 gap-3">
           {SPONSORS.map(([name, role, d]) => (
             <li key={name} className="rounded-md bg-muted p-4 list-none">
